@@ -43,3 +43,12 @@ TESTS
 =====
 test uses mocha. To run  
 `npm test`
+
+CODE COVERAGE
+=============
+Install istanbul
+`npm -g istanbul`
+Run
+`istanbul cover node_modules/mocha/bin/_mocha ./test/`
+The results at
+`coverage/lcov-report/index.html`
