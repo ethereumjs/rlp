@@ -46,9 +46,9 @@ test uses mocha. To run
 
 CODE COVERAGE
 =============
-Install istanbul
-`npm -g istanbul`
+Install dev dependencies
+`npm install`
 Run
-`istanbul cover node_modules/mocha/bin/_mocha ./test/`
-The results at
+`npm run codecoverage`
+The results are at
 `coverage/lcov-report/index.html`
