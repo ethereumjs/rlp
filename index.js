@@ -3,11 +3,11 @@ const assert = require('assert')
  * RLP Encoding based on: https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP
  * This function takes in a data, convert it to buffer if not, and a length for recursion
  *
- * @param {Buffer,String,Integer,Array} data - will be converted to buffer
+ * @param {Buffer,String,Integer,Array,Uint8Array} data - will be converted to buffer
  * @returns {Buffer} - returns buffer of encoded data
  **/
 exports.encode = function (input) {
-  if (input instanceof Array) {
+  if (input instanceof Array || (input instanceof Uint8Array && !Buffer.isBuffer(input))) {
     var output = []
     for (var i = 0; i < input.length; i++) {
       output.push(exports.encode(input[i]))
