@@ -213,7 +213,7 @@ function toBuffer (v) {
       }
     } else if (typeof v === 'number') {
       if (!v) {
-        v = Buffer.from([])
+        v = Buffer.alloc(1)
       } else {
         v = intToBuffer(v)
       }
