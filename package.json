@@ -40,8 +40,8 @@
     "coveralls": "^2.11.4",
     "ethereumjs-testing": "git+https://github.com/ethereumjs/ethereumjs-testing.git",
     "istanbul": "^0.4.2",
-    "mocha": "^2.3.4",
-    "standard": "^6.0.8"
+    "mocha": "^3.1.2",
+    "standard": "^8.5.0"
   },
   "bin": {
     "rlp": "./bin/rlp"
