@@ -75,7 +75,7 @@ describe('RLP encoding (integer):', function () {
   })
 
   it('it should handle zero', function () {
-    assert.equal(RLP.encode(0).toString('hex'), '80')
+    assert.equal(RLP.encode(0).toString('hex'), '00')
   })
 })
 
