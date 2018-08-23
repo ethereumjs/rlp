@@ -39,7 +39,7 @@
     "ethereumjs-testing": "git+https://github.com/ethereumjs/ethereumjs-testing.git",
     "istanbul": "^0.4.2",
     "mocha": "^2.3.4",
-    "standard": "^6.0.8"
+    "standard": "^11.0.1"
   },
   "bin": {
     "rlp": "./bin/rlp"

@@ -1,10 +1,10 @@
 declare module 'rlp' {
     import { Buffer } from 'safe-buffer'
 
-    type EncodeScalarInput = Buffer|string|number
+    type EncodeScalarInput = Buffer | string | number | Uint8Array
     type EncodeInput = EncodeScalarInput|Array<EncodeScalarInput>
 
-    export function encode(input: EncodeInput): Buffer
-    export function decode(input: EncodeInput): Array<Buffer>
-    export function getLength(input: EncodeInput): number
+    export function encode (input: EncodeInput): Buffer
+    export function decode (input: EncodeInput): Array<Buffer>
+    export function getLength (input: EncodeInput): number
 }
