@@ -1,4 +1,3 @@
-const assert = require('assert')
 const Buffer = require('safe-buffer').Buffer
 /**
  * RLP Encoding based on: https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP
@@ -61,7 +60,7 @@ exports.decode = function (input, stream) {
     return decoded
   }
 
-  assert.equal(decoded.remainder.length, 0, 'invalid remainder')
+  if (decoded.remainder.length !== 0) throw Error('invalid remainder')
   return decoded.data
 }
 
