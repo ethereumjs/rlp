@@ -8,11 +8,11 @@ SYNOPSIS
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 
-[Recursive Length](https://github.com/ethereum/wiki/wiki/RLP) Prefix Encoding for node.js.
+[Recursive Length](https://github.com/ethereum/wiki/wiki/RLP) Prefix Encoding for js.
 
 INSTALL
 ======
-`npm install rlp`   
+`npm install rlp`
 
 install with `-g` if you want to use the cli.
 
@@ -39,8 +39,8 @@ API
 
 CLI
 ===
-`rlp decode <hex string>`   
-`rlp encode <json String>`  
+`rlp decode <hex string>`
+`rlp encode <json String>`
 
 TESTS
 =====
