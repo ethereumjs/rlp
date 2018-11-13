@@ -8,10 +8,10 @@
   },
   "scripts": {
     "build": "tsc",
-    "coverage": "nyc mocha --reporter spec --require ts-node/register 'test/index.ts'",
+    "coverage": "nyc mocha --reporter spec --require ts-node/register test/index.ts",
     "coveralls": "npm run coverage && nyc report --reporter=text-lcov | coveralls",
     "lint": "standard",
-    "test": "mocha --reporter spec --require ts-node/register 'test/index.ts'",
+    "test": "mocha --reporter spec --require ts-node/register test/index.ts",
     "webtest": "browserify test/max.js | testling -u"
   },
   "repository": {
