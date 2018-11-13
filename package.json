@@ -6,6 +6,11 @@
   "directories": {
     "test": "test"
   },
+  "files": [
+    "/bin/*",
+    "/index.js",
+    "/index.d.ts"
+  ],
   "scripts": {
     "coverage": "istanbul cover _mocha",
     "coveralls": "npm run coverage && coveralls <coverage/lcov.info",
