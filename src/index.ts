@@ -1,5 +1,5 @@
 import { RLPInput, RLPDecoded } from "./types";
-import BN from 'bn.js';
+import BN from "bn.js";
 
 /**
  * RLP Encoding based on: https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP
@@ -55,7 +55,10 @@ function encodeLength(len: number, offset: number): Buffer {
  **/
 export function decode(input: Buffer, stream?: boolean): Buffer;
 export function decode(input: Buffer[], stream?: boolean): Buffer[];
-export function decode(input: RLPInput, stream: boolean = false): Buffer[] | Buffer | RLPDecoded {
+export function decode(
+  input: RLPInput,
+  stream: boolean = false
+): Buffer[] | Buffer | RLPDecoded {
   if (!input || (<any>input).length === 0) {
     return Buffer.from([]);
   }
@@ -236,9 +239,9 @@ function toBuffer(v: RLPInput): Buffer {
         return intToBuffer(v);
       }
     } else if (v === null || v === undefined) {
-        return Buffer.from([]);
+      return Buffer.from([]);
     } else if (v instanceof Uint8Array) {
-        return Buffer.from(v as any);
+      return Buffer.from(v as any);
     } else if (isBN(v)) {
       // converts a BN to a Buffer
       return Buffer.from(v.toArray());
@@ -251,16 +254,16 @@ function toBuffer(v: RLPInput): Buffer {
 
 // Check is input is a number
 function isString(input: RLPInput): input is string {
-    return typeof input === 'string';
+  return typeof input === "string";
 }
 
 // Check is input is a number
 function isNumber(input: RLPInput): input is number {
-    return typeof input === 'number';
+  return typeof input === "number";
 }
 
 // Check if an input is a BigNumber
 function isBN(input: RLPInput): input is BN {
   if (!input) return false;
-  return !!input.hasOwnProperty('toArray');
+  return !!input.hasOwnProperty("toArray");
 }
