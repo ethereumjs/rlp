@@ -16,7 +16,7 @@ describe('offical tests', function() {
       }
 
       const encoded = RLP.encode(incoming)
-      assert.equal(encoded.toString('hex'), officalTests[testName].out.toLowerCase())
+      assert.equal('0x' + encoded.toString('hex'), officalTests[testName].out.toLowerCase())
       done()
     })
   }

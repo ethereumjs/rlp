@@ -1,6 +1,6 @@
 import * as assert from 'assert'
 import { exec } from 'child_process'
-import * as RLP from '../dist'
+import * as RLP from '../src'
 
 describe('Distribution:', function() {
   it('should be able to execute functionality from distribution build', function() {
@@ -12,7 +12,7 @@ describe('Distribution:', function() {
 
 describe('CLI command:', function() {
   it('should be able to run CLI command', function() {
-    exec('./bin/rlp encode "[ 5 ]"', (_error, stdout, _stderr) => {
+    exec('../bin/rlp encode "[ 5 ]"', (_error, stdout, _stderr) => {
       assert.equal(stdout.trim(), 'c105')
     })
   })
