@@ -1,5 +1,4 @@
 import BN = require('bn.js')
-
 import { Decoded, Input, List } from './types'
 
 // Types exported outside of this package
@@ -244,12 +243,23 @@ function toBuffer(v: Input): Buffer {
       return Buffer.from([])
     } else if (v instanceof Uint8Array) {
       return Buffer.from(v as any)
-    } else if (BN.isBN(v)) {
+    } else if (isBN(v)) {
       // converts a BN to a Buffer
-      return Buffer.from(v.toArray())
+      return v.toArrayLike(Buffer)
     } else {
       throw new Error('invalid type')
     }
   }
   return v
+}
+
+/** Check if value is a BN instance */
+function isBN(value: any): value is BN {
+  if (typeof value.constructor.isBN !== 'function') {
+    return false
+  } else if (typeof value.toArrayLike !== 'function') {
+    return false
+  } else {
+    return true
+  }
 }
