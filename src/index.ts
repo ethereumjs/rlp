@@ -1,9 +1,9 @@
 import BN = require('bn.js')
 
-import { Decoded, Input, List } from './types'
+import { Decoded, Input, List, NestedBufferArray } from './types'
 
 // Types exported outside of this package
-export { Decoded, Input, List }
+export { Decoded, Input, List, NestedBufferArray }
 
 /**
  * RLP Encoding based on: https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP
@@ -54,13 +54,9 @@ function encodeLength(len: number, offset: number): Buffer {
 /**
  * RLP Decoding based on: {@link https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP|RLP}
  * @param input - will be converted to buffer
- * @param stream - Is the input a stream (false by default)
  * @returns - returns decode Array of Buffers containg the original message
  **/
-export function decode(input: Buffer, stream?: boolean): Buffer
-export function decode(input: Buffer[], stream?: boolean): Buffer[]
-export function decode(input: Input, stream?: boolean): Buffer[] | Buffer | Decoded
-export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer | Decoded {
+export function decode(input: Buffer): Buffer | NestedBufferArray {
   if (!input || (<any>input).length === 0) {
     return Buffer.from([])
   }
@@ -68,14 +64,27 @@ export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer
   const inputBuffer = toBuffer(input)
   const decoded = _decode(inputBuffer)
 
-  if (stream) {
-    return decoded
-  }
   if (decoded.remainder.length !== 0) {
     throw new Error('invalid remainder')
   }
 
   return decoded.data
+}
+
+/**
+ * Streaming version of RLP decoding.
+ * @param input - will be converted to buffer
+ * @returns - returns `Decoded` object which has decoded data, and remainder
+ **/
+export function decodeStreaming(input: Buffer): Decoded {
+  if (!input || (<any>input).length === 0) {
+    return { data: Buffer.from([]), remainder: Buffer.alloc(0) }
+  }
+
+  const inputBuffer = toBuffer(input)
+  const decoded = _decode(inputBuffer)
+
+  return decoded
 }
 
 /**
