@@ -1,35 +1,43 @@
 #!/usr/bin/env node
 
 const rlp = require('../dist/index.js')
-const command = process.argv[2]
-var raw = process.argv[3]
+const method = process.argv[2]
+const raw = process.argv[3]
 
-if (command === 'encode') {
+if (method === 'encode') {
+  // Parse JSON
+  let json
   try {
-    const json = JSON.parse(raw)
-    console.log(rlp.encode(json).toString('hex'))
+    json = JSON.parse(raw)
   } catch (e) {
-    console.log('invalid json')
+    return console.error('Error: Could not parse json')
+  }
+  try {
+    const encoded = rlp.encode(json)
+    console.log('0x' + encoded.toString('hex'))
+  } catch (e) {
+    console.error('Error encoding: ' + e)
+  }
+} else if (method === 'decode') {
+  try {
+    const decoded = rlp.decode(raw)
+    const json = JSON.stringify(baToJSON(decoded))
+    console.log(json)
+  } catch (e) {
+    console.error('Error decoding: ' + e)
   }
 } else {
-  if (!raw) {
-    raw = command
-  }
-  try {
-    console.log(baToJSON(rlp.decode(raw)))
-  } catch (e) {
-    console.log('invalid RLP' + e)
-  }
+  console.error('Unsupported method')
 }
 
-function baToJSON (ba) {
+function baToJSON(ba) {
   if (Buffer.isBuffer(ba)) {
-    return ba.toString('hex')
+    return ba.toString()
   } else if (ba instanceof Array) {
-    var array = []
-    for (var i = 0; i < ba.length; i++) {
-      array.push(baToJSON(ba[i]))
+    const arr = []
+    for (let i = 0; i < ba.length; i++) {
+      arr.push(baToJSON(ba[i]))
     }
-    return array
+    return arr
   }
 }
