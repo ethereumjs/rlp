@@ -181,6 +181,12 @@ describe('strings over 55 bytes long', function() {
     const decoded = RLP.decode(encoded)
     assert.equal(decoded.toString(), testString)
   })
+
+  it('should decode (using decodeStreaming)', function() {
+    const decoded = RLP.decodeStreaming(encoded)
+    assert.equal(decoded.data.toString(), testString)
+    assert.ok(decoded.remainder.equals(Buffer.alloc(0)))
+  })
 })
 
 describe('list over 55 bytes long', function() {
@@ -283,6 +289,11 @@ describe('zero values', function() {
   it('decode a zero', function() {
     const decode = RLP.decode(Buffer.from([0]))
     assert.deepEqual(decode, Buffer.from([0]))
+  })
+
+  it('decode a zero (using decodeStreaming)', function() {
+    const decode = RLP.decodeStreaming(Buffer.from([0]))
+    assert.deepEqual(decode, { data: Buffer.from([0]), remainder: Buffer.alloc(0) })
   })
 })
 
