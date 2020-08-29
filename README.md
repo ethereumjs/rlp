@@ -3,7 +3,7 @@
 [![NPM Package](https://img.shields.io/npm/v/rlp.svg)](https://www.npmjs.org/package/rlp)
 [![Actions Status](https://github.com/ethereumjs/rlp/workflows/Build/badge.svg)](https://github.com/ethereumjs/rlp/actions)
 [![Coverage Status](https://img.shields.io/coveralls/ethereumjs/rlp.svg)](https://coveralls.io/r/ethereumjs/rlp)
-[![Gitter](https://img.shields.io/gitter/room/ethereum/ethereumjs-lib.svg)](https://gitter.im/ethereum/ethereumjs-lib)
+[![Discord][discord-badge]][discord-link]
 
 [Recursive Length](https://github.com/ethereum/wiki/wiki/RLP) Prefix Encoding for node.js.
 
@@ -56,3 +56,7 @@ The results are at
 See our organizational [documentation](https://ethereumjs.readthedocs.io) for an introduction to `EthereumJS` as well as information on current standards and best practices.
 
 If you want to join for work or do improvements on the libraries have a look at our [contribution guidelines](https://ethereumjs.readthedocs.io/en/latest/contributing.html).
+
+
+[discord-badge]: https://img.shields.io/static/v1?logo=discord&label=discord&message=Join&color=blue
+[discord-link]: https://discord.gg/TNwARpR
