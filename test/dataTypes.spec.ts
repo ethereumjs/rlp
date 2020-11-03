@@ -77,11 +77,23 @@ describe('RLP encoding (list):', function() {
     assert.equal(encodedArrayOfStrings[1], 131)
     assert.equal(encodedArrayOfStrings[11], 97)
     assert.equal(encodedArrayOfStrings[12], 116)
+    assert.equal(RLP.getLength(encodedArrayOfStrings), 13)
   })
 
-  // it('length of list >55 should return 0xf7+len(len(data)) plus len(data) plus data', function () {
-  //   // need a test case here!
-  // })
+  it('length of list >55 should return 0xf7+len(len(data)) plus len(data) plus data', function() {
+    // prettier-ignore
+    const testString = ['This', 'function', 'takes', 'in', 'a', 'data', 'convert', 'it', 'to', 'buffer', 'if', 'not', 'and', 'a', 'length', 'for', 'recursion', 'a1', 'a2', 'a3', 'ia4', 'a5', 'a6', 'a7', 'a8', 'ba9']
+    const encoded = RLP.encode(testString)
+    assert.equal(114, encoded.length)
+    assert.equal(encoded[0], 248)
+    assert.equal(encoded[1], 112)
+    assert.equal(encoded[2], 132)
+    assert.equal(encoded[3], 84)
+    assert.equal(encoded[11], 99)
+    assert.equal(encoded[12], 116)
+    assert.equal(encoded[13], 105)
+    assert.equal(RLP.getLength(encoded), 114)
+  })
 })
 
 describe('RLP encoding (BigInt):', function() {
@@ -180,6 +192,12 @@ describe('strings over 55 bytes long', function() {
   it('should decode', function() {
     const decoded = RLP.decode(encoded)
     assert.equal(decoded.toString(), testString)
+  })
+
+  it('should decode (using decodeStreaming)', function() {
+    const decoded = RLP.decodeStreaming(encoded)
+    assert.equal(decoded.data.toString(), testString)
+    assert.ok(decoded.remainder.equals(Buffer.alloc(0)))
   })
 })
 
@@ -283,6 +301,11 @@ describe('zero values', function() {
   it('decode a zero', function() {
     const decode = RLP.decode(Buffer.from([0]))
     assert.deepEqual(decode, Buffer.from([0]))
+  })
+
+  it('decode a zero (using decodeStreaming)', function() {
+    const decode = RLP.decodeStreaming(Buffer.from([0]))
+    assert.deepEqual(decode, { data: Buffer.from([0]), remainder: Buffer.alloc(0) })
   })
 })
 
