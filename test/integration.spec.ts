@@ -3,10 +3,20 @@ import { exec } from 'child_process'
 import * as RLP from '../dist'
 import * as vm from 'vm'
 
+const txt = {
+  // @ts-ignore
+  TextDecoder: typeof TextDecoder === 'undefined' ? require('util').TextDecoder : TextDecoder,
+}
+
+function arrayToUtf8(ui8a: Uint8Array): string {
+  // @ts-ignore
+  return new txt.TextDecoder().decode(ui8a)
+}
+
 describe('Distribution:', function() {
   it('should be able to execute functionality from distribution build', function() {
     const encodedSelf = RLP.encode('a')
-    assert.equal(encodedSelf.toString(), 'a')
+    assert.equal(arrayToUtf8(encodedSelf), 'a')
     assert.equal(RLP.getLength(encodedSelf), 1)
   })
 })
@@ -22,7 +32,10 @@ describe('CLI command:', function() {
 describe('Cross-frame:', function() {
   it('should be able to encode Arrays across stack frames', function() {
     assert.equal(
-      vm.runInNewContext("RLP.encode(['dog', 'god', 'cat']).toString('hex')", { RLP }),
+      vm.runInNewContext(
+        "Array.from(RLP.encode(['dog', 'god', 'cat'])).map(a => a.toString(16)).join('')",
+        { RLP },
+      ),
       'cc83646f6783676f6483636174',
     )
   })

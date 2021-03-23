@@ -4,10 +4,19 @@ const rlp = require('../dist/index.js')
 const command = process.argv[2]
 var raw = process.argv[3]
 
+function bytesToHex(uint8a) {
+  // pre-caching chars could speed this up 6x.
+  var hex = '';
+  for (var i = 0; i < uint8a.length; i++) {
+      hex += uint8a[i].toString(16).padStart(2, '0');
+  }
+  return hex;
+}
+
 if (command === 'encode') {
   try {
     const json = JSON.parse(raw)
-    console.log(rlp.encode(json).toString('hex'))
+    console.log(bytesToHex(rlp.encode(json)))
   } catch (e) {
     console.log('invalid json')
   }

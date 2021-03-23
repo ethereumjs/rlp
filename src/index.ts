@@ -1,9 +1,91 @@
-import BN = require('bn.js')
+export type Input = string | number | Uint8Array | bigint | List | null
 
-import { Decoded, Input, List } from './types'
+const txt = {
+  // @ts-ignore
+  TextEncoder: typeof TextEncoder === 'undefined' ? require('util').TextEncoder : TextEncoder,
+}
 
-// Types exported outside of this package
-export { Decoded, Input, List }
+// Use interface extension instead of type alias to
+// make circular declaration possible.
+export interface List extends Array<Input> {}
+
+export interface Decoded {
+  data: Uint8Array | Uint8Array[]
+  remainder: Uint8Array
+}
+
+function hexToBytes(hex: string) {
+  hex = hex.slice(0, 2) === '0x' ? hex.slice(2) : hex
+  hex = hex.length & 1 ? `0${hex}` : hex
+  const len = hex.length
+  const result = new Uint8Array(len / 2)
+  for (let i = 0, j = 0; i < len - 1; i += 2, j++) {
+    result[j] = parseInt(hex[i] + hex[i + 1], 16)
+  }
+  return result
+}
+
+function numberToBytes(num: number | bigint) {
+  return hexToBytes(num.toString(16))
+}
+
+function utf8ToBytes(utf: string): Uint8Array {
+  // @ts-ignore
+  return new txt.TextEncoder().encode(utf)
+}
+
+function concatBytes(...arrays: Uint8Array[]): Uint8Array {
+  if (arrays.length === 1) return arrays[0]
+  const length = arrays.reduce((a, arr) => a + arr.length, 0)
+  const result = new Uint8Array(length)
+  for (let i = 0, pad = 0; i < arrays.length; i++) {
+    const arr = arrays[i]
+    result.set(arr, pad)
+    pad += arr.length
+  }
+  return result
+}
+
+function bytesToHex(uint8a: Uint8Array): string {
+  // pre-caching chars could speed this up 6x.
+  let hex = ''
+  for (let i = 0; i < uint8a.length; i++) {
+    hex += padToEven(uint8a[i].toString(16));
+  }
+  return hex
+}
+
+/** Check if a string is prefixed by 0x */
+function isHexPrefixed(str: string): boolean {
+  return str.slice(0, 2) === '0x'
+}
+
+/** Removes 0x from a given String */
+function stripHexPrefix(str: string): string {
+  if (typeof str !== 'string') {
+    return str
+  }
+  return isHexPrefixed(str) ? str.slice(2) : str
+}
+
+/** Transform an integer into its hexadecimal value */
+function numberToHexSigned(integer: number): string {
+  if (integer < 0) {
+    throw new Error('Invalid integer as argument, must be unsigned!')
+  }
+  const hex = integer.toString(16)
+  return hex.length % 2 ? `0${hex}` : hex
+}
+
+/** Transform an integer into a Uint8Array */
+function numberToBytesSigned(integer: number): Uint8Array {
+  return hexToBytes(numberToHexSigned(integer))
+}
+
+/** Pad a string to be even */
+function padToEven(a: string): string {
+  return a.length % 2 ? `0${a}` : a
+}
 
 /**
  * RLP Encoding based on: https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP
@@ -11,19 +93,19 @@ export { Decoded, Input, List }
  * @param input - will be converted to buffer
  * @returns returns buffer of encoded data
  **/
-export function encode(input: Input): Buffer {
+export function encode(input: Input): Uint8Array {
   if (Array.isArray(input)) {
-    const output: Buffer[] = []
+    const output: Uint8Array[] = []
     for (let i = 0; i < input.length; i++) {
       output.push(encode(input[i]))
     }
-    const buf = Buffer.concat(output)
-    return Buffer.concat([encodeLength(buf.length, 192), buf])
+    const buf = concatBytes(...output)
+    return concatBytes(...[encodeLength(buf.length, 192), buf])
   } else {
     const inputBuf = toBuffer(input)
     return inputBuf.length === 1 && inputBuf[0] < 128
       ? inputBuf
-      : Buffer.concat([encodeLength(inputBuf.length, 128), inputBuf])
+      : concatBytes(...[encodeLength(inputBuf.length, 128), inputBuf])
   }
 }
 
@@ -32,37 +114,37 @@ export function encode(input: Input): Buffer {
  * @param v The value to parse
  * @param base The base to parse the integer into
  */
-function safeParseInt(v: string, base: number): number {
-  if (v.slice(0, 2) === '00') {
+function safeParseInt(v: Uint8Array, base: number): number {
+  const vv = bytesToHex(v)
+  if (vv.slice(0, 2) === '00') {
     throw new Error('invalid RLP: extra zeros')
   }
-
-  return parseInt(v, base)
+  return parseInt(vv, base)
 }
 
-function encodeLength(len: number, offset: number): Buffer {
+function encodeLength(len: number, offset: number): Uint8Array {
   if (len < 56) {
-    return Buffer.from([len + offset])
+    return Uint8Array.from([len + offset])
   } else {
-    const hexLength = intToHex(len)
+    const hexLength = numberToHexSigned(len)
     const lLength = hexLength.length / 2
-    const firstByte = intToHex(offset + 55 + lLength)
-    return Buffer.from(firstByte + hexLength, 'hex')
+    const firstByte = numberToHexSigned(offset + 55 + lLength)
+    return hexToBytes(firstByte + hexLength)
   }
 }
 
 /**
  * RLP Decoding based on: {@link https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP|RLP}
- * @param input - will be converted to buffer
+ * @param input - will be converted to Uint8Array
  * @param stream - Is the input a stream (false by default)
- * @returns - returns decode Array of Buffers containg the original message
+ * @returns - returns decode Array of Uint8Arrays containg the original message
  **/
-export function decode(input: Buffer, stream?: boolean): Buffer
-export function decode(input: Buffer[], stream?: boolean): Buffer[]
-export function decode(input: Input, stream?: boolean): Buffer[] | Buffer | Decoded
-export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer | Decoded {
+export function decode(input: Uint8Array, stream?: boolean): Uint8Array
+export function decode(input: Uint8Array[], stream?: boolean): Uint8Array[]
+export function decode(input: Input, stream?: boolean): Uint8Array[] | Uint8Array | Decoded
+export function decode(input: Input, stream: boolean = false): Uint8Array[] | Uint8Array | Decoded {
   if (!input || (<any>input).length === 0) {
-    return Buffer.from([])
+    return Uint8Array.from([])
   }
 
   const inputBuffer = toBuffer(input)
@@ -83,9 +165,9 @@ export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer
  * @param input
  * @returns The length of the input or an empty Buffer if no input
  */
-export function getLength(input: Input): Buffer | number {
+export function getLength(input: Input): Uint8Array | number {
   if (!input || (<any>input).length === 0) {
-    return Buffer.from([])
+    return Uint8Array.from([])
   }
 
   const inputBuffer = toBuffer(input)
@@ -103,13 +185,13 @@ export function getLength(input: Input): Buffer | number {
   } else {
     // a list  over 55 bytes long
     const llength = firstByte - 0xf6
-    const length = safeParseInt(inputBuffer.slice(1, llength).toString('hex'), 16)
+    const length = safeParseInt(inputBuffer.slice(1, llength), 16)
     return llength + length
   }
 }
 
 /** Decode an input with RLP */
-function _decode(input: Buffer): Decoded {
+function _decode(input: Uint8Array): Decoded {
   let length, llength, data, innerRemainder, d
   const decoded = []
   const firstByte = input[0]
@@ -127,7 +209,7 @@ function _decode(input: Buffer): Decoded {
 
     // set 0x80 null to 0
     if (firstByte === 0x80) {
-      data = Buffer.from([])
+      data = Uint8Array.from([])
     } else {
       data = input.slice(1, length)
     }
@@ -147,7 +229,7 @@ function _decode(input: Buffer): Decoded {
     if (input.length - 1 < llength) {
       throw new Error('invalid RLP: not enough bytes for string length')
     }
-    length = safeParseInt(input.slice(1, llength).toString('hex'), 16)
+    length = safeParseInt(input.slice(1, llength), 16)
     if (length <= 55) {
       throw new Error('invalid RLP: expected string length to be greater than 55')
     }
@@ -166,7 +248,7 @@ function _decode(input: Buffer): Decoded {
     innerRemainder = input.slice(1, length)
     while (innerRemainder.length) {
       d = _decode(innerRemainder)
-      decoded.push(d.data as Buffer)
+      decoded.push(d.data as Uint8Array)
       innerRemainder = d.remainder
     }
 
@@ -177,7 +259,7 @@ function _decode(input: Buffer): Decoded {
   } else {
     // a list  over 55 bytes long
     llength = firstByte - 0xf6
-    length = safeParseInt(input.slice(1, llength).toString('hex'), 16)
+    length = safeParseInt(input.slice(1, llength), 16)
     const totalLength = llength + length
     if (totalLength > input.length) {
       throw new Error('invalid rlp: total length is larger than the data')
@@ -190,7 +272,7 @@ function _decode(input: Buffer): Decoded {
 
     while (innerRemainder.length) {
       d = _decode(innerRemainder)
-      decoded.push(d.data as Buffer)
+      decoded.push(d.data as Uint8Array)
       innerRemainder = d.remainder
     }
     return {
@@ -200,61 +282,28 @@ function _decode(input: Buffer): Decoded {
   }
 }
 
-/** Check if a string is prefixed by 0x */
-function isHexPrefixed(str: string): boolean {
-  return str.slice(0, 2) === '0x'
-}
-
-/** Removes 0x from a given String */
-function stripHexPrefix(str: string): string {
-  if (typeof str !== 'string') {
-    return str
-  }
-  return isHexPrefixed(str) ? str.slice(2) : str
-}
-
-/** Transform an integer into its hexadecimal value */
-function intToHex(integer: number | bigint): string {
-  if (integer < 0) {
-    throw new Error('Invalid integer as argument, must be unsigned!')
-  }
-  const hex = integer.toString(16)
-  return hex.length % 2 ? `0${hex}` : hex
-}
-
-/** Pad a string to be even */
-function padToEven(a: string): string {
-  return a.length % 2 ? `0${a}` : a
-}
-
-/** Transform an integer into a Buffer */
-function intToBuffer(integer: number | bigint): Buffer {
-  const hex = intToHex(integer)
-  return Buffer.from(hex, 'hex')
-}
-
 /** Transform anything into a Buffer */
-function toBuffer(v: Input): Buffer {
-  if (!Buffer.isBuffer(v)) {
+function toBuffer(v: Input): Uint8Array {
+  if (!(v instanceof Uint8Array)) {
     if (typeof v === 'string') {
       if (isHexPrefixed(v)) {
-        return Buffer.from(padToEven(stripHexPrefix(v)), 'hex')
+        return hexToBytes(padToEven(stripHexPrefix(v)))
       } else {
-        return Buffer.from(v)
+        return utf8ToBytes(v)
       }
-    } else if (typeof v === 'number' || typeof v === 'bigint') {
+    } else if (typeof v === 'number') {
       if (!v) {
-        return Buffer.from([])
+        return Uint8Array.from([])
       } else {
-        return intToBuffer(v)
+        return numberToBytesSigned(v)
       }
     } else if (v === null || v === undefined) {
-      return Buffer.from([])
+      return Uint8Array.from([])
     } else if (v instanceof Uint8Array) {
-      return Buffer.from(v as any)
-    } else if (BN.isBN(v)) {
-      // converts a BN to a Buffer
-      return Buffer.from(v.toArray())
+      return Uint8Array.from(v as any)
+    } else if (typeof v === 'bigint') {
+      // converts a BN to a Uint8Array
+      return numberToBytes(v)
     } else {
       throw new Error('invalid type')
     }
