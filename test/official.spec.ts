@@ -21,3 +21,22 @@ describe('offical tests', function () {
     })
   }
 })
+
+describe('invalid tests', function() {
+  const invalidTests = require('./fixture/invalid.json').tests
+
+  for (const testName in invalidTests) {
+    it(`should pass ${testName}`, function(done) {
+      let outcoming = invalidTests[testName].out
+      if (outcoming.slice(0, 2) == '0x') {
+        outcoming = outcoming.slice(2)
+      }
+      // if we are testing a big number
+      try {
+        RLP.decode(Buffer.from(outcoming, 'hex'))
+      } catch (e) {
+        done()
+      }
+    })
+  }
+})
