@@ -1,4 +1,4 @@
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     frameworks: ['mocha', 'karma-typescript'],
     files: ['src/**/*.ts', 'test/**/!(integration)*.ts'],
@@ -19,5 +19,6 @@ module.exports = function(config) {
     // Fail after timeout
     browserDisconnectTimeout: 100000,
     browserNoActivityTimeout: 100000,
+    karmaTypescriptConfig: { tsconfig: './tsconfig.json' },
   })
 }
