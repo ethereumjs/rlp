@@ -18,7 +18,6 @@ module.exports = function (config) {
     concurrency: Infinity,
     // Fail after timeout
     browserDisconnectTimeout: 100000,
-    browserNoActivityTimeout: 100000,
     karmaTypescriptConfig: { tsconfig: './tsconfig.json' },
   })
 }
