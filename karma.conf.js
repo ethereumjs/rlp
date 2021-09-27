@@ -6,11 +6,6 @@ module.exports = function (config) {
       '**/*.ts': ['karma-typescript'],
     },
     plugins: ['karma-mocha', 'karma-typescript', 'karma-chrome-launcher', 'karma-firefox-launcher'],
-    karmaTypescriptConfig: {
-      bundlerOptions: {
-        entrypoints: /\.spec\.ts$/,
-      },
-    },
     colors: true,
     reporters: ['progress', 'karma-typescript'],
     browsers: ['FirefoxHeadless', 'ChromeHeadless'],
@@ -18,6 +13,12 @@ module.exports = function (config) {
     concurrency: Infinity,
     // Fail after timeout
     browserDisconnectTimeout: 100000,
-    karmaTypescriptConfig: { tsconfig: './tsconfig.json' },
+    browserNoActivityTimeout: 100000,
+    karmaTypescriptConfig: {
+      bundlerOptions: {
+        entrypoints: /\.spec\.ts$/,
+      },
+      tsconfig: './tsconfig.json',
+    },
   })
 }
