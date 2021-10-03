@@ -2,6 +2,7 @@
   "extends": "@ethereumjs/config-tsc",
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   }
 }
