@@ -10,7 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 - Performance: Avoid creating new array when checking first two chars, PR [#100](https://github.com/ethereumjs/rlp/pull/100)
 - Update BN from require to import, PR [#99](https://github.com/ethereumjs/rlp/pull/99)
-- Update dependencies to latest and add browser build, PR [#101](https://github.com/ethereumjs/rlp/pull/101)
+- Update dependencies to latest and add browser build, PR [#102](https://github.com/ethereumjs/rlp/pull/102)
+
+[v2.2.7]: https://github.com/ethereumjs/rlp/compare/2.2.6...v2.2.7
 
 ## [v2.2.6] - 2020-07-17
 
