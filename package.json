@@ -21,7 +21,7 @@
     "tsc": "tsc -p ./tsconfig.prod.json --noEmit",
     "lint": "ethereumjs-config-lint",
     "lint:fix": "ethereumjs-config-lint-fix",
-    "test": "npm run lint && npm run build && npm run unitTests && npm run test:browser",
+    "test": "npm run lint && npm run build && npm run test:unit && npm run test:browser",
     "test:unit": "mocha --reporter spec --require ts-node/register test/*.spec.ts",
     "test:browser": "karma start karma.conf.js"
   },
@@ -60,7 +60,7 @@
     "@types/bn.js": "^5.1.0",
     "@types/mocha": "^9.0.0",
     "@types/node": "^12.13.0",
-    "husky": "^7.0.2",
+    "husky": "^4.2.5",
     "karma": "^6.3.4",
     "karma-chrome-launcher": "^3.1.0",
     "karma-firefox-launcher": "^2.1.1",
