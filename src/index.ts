@@ -36,10 +36,9 @@ export function encode(input: Input): Buffer {
  */
 function safeSlice(inputBuffer: Buffer, start: number, end: number) {
   if (end > inputBuffer.length) {
-    throw new Error('rlp: safeSlice: end slice of Buffer out-of-bounds')
-  } else {
-    return inputBuffer.slice(start, end)
+    throw new Error('invalid RLP (safeSlice): end slice of Buffer out-of-bounds')
   }
+  return inputBuffer.slice(start, end)
 }
 
 /**
