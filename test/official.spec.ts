@@ -1,14 +1,13 @@
-import * as assert from 'assert'
-import * as RLP from '../src'
+import assert from 'assert'
 import BN from 'bn.js'
+import * as RLP from '../src'
+import official from './fixture/rlptest.json'
+import invalid from './fixture/invalid.json'
 
 describe('offical tests', function () {
-  const officalTests = require('./fixture/rlptest.json').tests
-
-  // eslint-disable-next-line no-restricted-syntax
-  for (const testName in officalTests) {
+  for (const [testName, test] of Object.entries(official.tests)) {
     it(`should pass ${testName}`, function (done) {
-      let incoming = officalTests[testName].in
+      let incoming: any = test.in
       // if we are testing a big number
       if (incoming[0] === '#') {
         const bn = new BN(incoming.slice(1))
@@ -16,26 +15,24 @@ describe('offical tests', function () {
       }
 
       const encoded = RLP.encode(incoming)
-      assert.equal('0x' + encoded.toString('hex'), officalTests[testName].out.toLowerCase())
+      const out = test.out[0] === '0' && test.out[1] === 'x' ? test.out.slice(2) : test.out
+      assert.ok(encoded.equals(Buffer.from(out, 'hex')))
       done()
     })
   }
 })
 
-describe('invalid tests', function() {
-  const invalidTests = require('./fixture/invalid.json').tests
-
-  for (const testName in invalidTests) {
-    it(`should pass ${testName}`, function(done) {
-      let outcoming = invalidTests[testName].out
-      if (outcoming.slice(0, 2) == '0x') {
-        outcoming = outcoming.slice(2)
+describe('invalid tests', function () {
+  for (const [testName, test] of Object.entries(invalid.tests)) {
+    it(`should pass ${testName}`, function (done) {
+      let { out } = test
+      if (out[0] === '0' && out[1] === 'x') {
+        out = out.slice(2)
       }
-      // if we are testing a big number
       try {
-        RLP.decode(Buffer.from(outcoming, 'hex'))
-        done(`should not decode invalid RLPs, input: ${outcoming}`)
-      } catch (e) {
+        RLP.decode(Buffer.from(out, 'hex'))
+        assert.fail(`should not decode invalid RLPs, input: ${out}`)
+      } finally {
         done()
       }
     })
