@@ -34,11 +34,11 @@ export function encode(input: Input): Buffer {
  * @param start
  * @param end
  */
-function safeSlice(inputBuffer: Buffer, start: number, end: number) {
-  if (end > inputBuffer.length) {
+function safeSlice(input: Buffer, start: number, end: number) {
+  if (end > input.length) {
     throw new Error('invalid RLP (safeSlice): end slice of Buffer out-of-bounds')
   }
-  return inputBuffer.slice(start, end)
+  return input.slice(start, end)
 }
 
 /**
@@ -143,7 +143,7 @@ function _decode(input: Buffer): Decoded {
     if (firstByte === 0x80) {
       data = Buffer.from([])
     } else {
-      data = safeSlice(input, 1, length) //input.slice(1, length)
+      data = safeSlice(input, 1, length)
     }
 
     if (length === 2 && data[0] < 0x80) {
