@@ -89,11 +89,6 @@
         "out": "f803112233"
       },
   
-      "emptyEncoding": {
-        "in": "INVALID",
-        "out": ""
-      },
-  
       "lessThanShortLengthArray1": {
         "in": "INVALID",
         "out": "81"
