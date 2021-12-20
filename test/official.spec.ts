@@ -34,6 +34,7 @@ describe('invalid tests', function() {
       // if we are testing a big number
       try {
         RLP.decode(Buffer.from(outcoming, 'hex'))
+        done(`should not decode invalid RLPs, input: ${outcoming}`)
       } catch (e) {
         done()
       }
