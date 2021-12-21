@@ -225,7 +225,7 @@ function bufferArrayToStringArray(buffer: any): any {
   })
 }
 
-describe('invalid geth tests', function () {
+describe('geth tests', function () {
   for (const gethCase of gethCases) {
     const buffer = Buffer.from(gethCase.input, 'hex')
     it('should pass Geth test', function (done) {
