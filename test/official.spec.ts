@@ -73,8 +73,8 @@ describe('invalid geth tests', function () {
     it('should pass Geth test', function (done) {
       try {
         RLP.decode(buffer)
-        done(`should throw: ${gethCase}`)
-      } catch (e) {
+        assert.fail(`should throw: ${gethCase}`)
+      } finally {
         done()
       }
     })
@@ -231,30 +231,25 @@ describe('invalid geth tests', function () {
     it('should pass Geth test', function (done) {
       try {
         const output = RLP.decode(buffer)
-        if (gethCase.error) {
-          done(`should throw: ${gethCase.input}`)
+        if (Array.isArray(output)) {
+          const arrayOutput = bufferArrayToStringArray(output)
+          assert.equal(
+            JSON.stringify(arrayOutput),
+            JSON.stringify(gethCase.value!),
+            `invalid output: ${gethCase.input}`
+          )
         } else {
-          if (Array.isArray(output)) {
-            const arrayOutput = bufferArrayToStringArray(output)
-            if (JSON.stringify(arrayOutput) == JSON.stringify(gethCase.value!)) {
-              done()
-            } else {
-              done(`invalid output: ${gethCase.input}`)
-            }
-          } else {
-            if (output.toString('hex') != gethCase.value) {
-              done(`invalid output: ${gethCase.input}`)
-            } else {
-              done()
-            }
-          }
+          assert.equal(output.toString('hex'), gethCase.value, `invalid output: ${gethCase.input}`)
+        }
+        if (gethCase.error) {
+          assert.fail(`should throw: ${gethCase.input}`)
         }
       } catch (e) {
         if (!gethCase.error) {
-          done(`should not throw: ${gethCase.input}`)
-        } else {
-          done()
+          assert.fail(`should not throw: ${gethCase.input}`)
         }
+      } finally {
+        done()
       }
     })
   }
