@@ -38,3 +38,224 @@ describe('invalid tests', function () {
     })
   }
 })
+
+// The tests below are taken from Geth
+// https://github.com/ethereum/go-ethereum/blob/99be62a9b16fd7b3d1e2e17f1e571d3bef34f122/rlp/decode_test.go
+// Not all tests were taken; some which throw due to type errors in Geth are ran against Geth's RLPdump to
+// see if there is a decode error or not. In both cases, the test is convered to either reflect the
+// expected value, or if the test is invalid, it is added as error test case
+
+const invalidGethCases: string[] = [
+  'F800',
+  'BA0002FFFF',
+  'B90000',
+  'B800',
+  '817F',
+  '8100',
+  '8101',
+  'C8C9010101010101010101',
+  'F90000',
+  'F90055',
+  'FA0002FFFF',
+  'BFFFFFFFFFFFFFFFFFFF',
+  'C801',
+  'CD04040404FFFFFFFFFFFFFFFFFF0303',
+  'C40102030401',
+  'C4010203048180',
+  '81',
+  'BFFFFFFFFFFFFFFF',
+  'C801',
+]
+
+describe('invalid geth tests', function () {
+  for (const gethCase of invalidGethCases) {
+    const buffer = Buffer.from(gethCase, 'hex')
+    it('should pass Geth test', function (done) {
+      try {
+        RLP.decode(buffer)
+        done(`should throw: ${gethCase}`)
+      } catch (e) {
+        done()
+      }
+    })
+  }
+})
+
+// Note; these tests also contain some invalid cases
+
+const gethCases = [
+  { input: '05', value: '05' },
+  { input: '80', value: '' },
+  { input: '01', value: '01' },
+  { input: '820505', value: '0505' },
+  { input: '83050505', value: '050505' },
+  { input: '8405050505', value: '05050505' },
+  { input: '850505050505', value: '0505050505' },
+  { input: 'C0', value: [] },
+  { input: '00', value: '00' },
+  { input: '8105', error: true },
+  { input: '820004', value: '0004' },
+  { input: 'B8020004', error: true },
+  { input: 'C80102030405060708', value: ['01', '02', '03', '04', '05', '06', '07', '08'] },
+  { input: 'F8020004', error: true },
+  { input: 'C50102030405', value: ['01', '02', '03', '04', '05'] },
+  { input: 'C102', value: ['02'] },
+  { input: '8D6162636465666768696A6B6C6D', value: '6162636465666768696a6b6c6d' },
+  { input: '86010203040506', value: '010203040506' },
+  { input: '89FFFFFFFFFFFFFFFFFF', value: 'ffffffffffffffffff' },
+  {
+    input:
+      'B848FFFFFFFFFFFFFFFFF800000000000000001BFFFFFFFFFFFFFFFFC8000000000000000045FFFFFFFFFFFFFFFFC800000000000000001BFFFFFFFFFFFFFFFFF8000000000000000001',
+    value:
+      'fffffffffffffffff800000000000000001bffffffffffffffffc8000000000000000045ffffffffffffffffc800000000000000001bfffffffffffffffff8000000000000000001',
+  },
+  { input: '10', value: '10' },
+  { input: '820001', value: '0001' },
+  {
+    input: 'C50583343434',
+    value: ['05', '343434'],
+  },
+  {
+    input: 'C601C402C203C0',
+    value: ['01', ['02', ['03', []]]],
+  },
+  {
+    input: 'C58083343434',
+    value: ['', '343434'],
+  },
+
+  {
+    input: 'C105',
+    value: ['05'],
+  },
+  {
+    input: 'C7C50583343434C0',
+    value: [['05', '343434'], []],
+  },
+  {
+    input: '83222222',
+    value: '222222',
+  },
+  {
+    input: 'C3010101',
+    value: ['01', '01', '01'],
+  },
+  {
+    input: 'C501C3C00000',
+    value: ['01', [[], '00', '00']],
+  },
+  {
+    input: 'C103',
+    value: ['03'],
+  },
+  {
+    input: 'C50102C20102',
+    value: ['01', '02', ['01', '02']],
+  },
+  {
+    input: 'C3010203',
+    value: ['01', '02', '03'],
+  },
+  {
+    input: 'C20102',
+    value: ['01', '02'],
+  },
+  {
+    input: 'C101',
+    value: ['01'],
+  },
+  {
+    input: 'C180',
+    value: [''],
+  },
+  {
+    input: 'C1C0',
+    value: [[]],
+  },
+  {
+    input: 'C103',
+    value: ['03'],
+  },
+
+  {
+    input: 'C2C103',
+    value: [['03']],
+  },
+  {
+    input: 'C20102',
+    value: ['01', '02'],
+  },
+  {
+    input: 'C3010203',
+    value: ['01', '02', '03'],
+  },
+  {
+    input: 'C401020304',
+    value: ['01', '02', '03', '04'],
+  },
+  {
+    input: 'C20180',
+    value: ['01', ''],
+  },
+  {
+    input: 'C50183010203',
+    value: ['01', '010203'],
+  },
+  { input: '82FFFF', value: 'ffff' },
+  { input: '07', value: '07' },
+  { input: '8180', value: '80' },
+  { input: 'C109', value: ['09'] },
+  { input: 'C58403030303', value: ['03030303'] },
+
+  { input: 'C3808005', value: ['', '', '05'] },
+  { input: 'C50183040404', value: ['01', '040404'] },
+  {
+    input: 'c330f9c030f93030ce3030303030303030bd303030303030',
+    error: true,
+  },
+]
+
+function bufferArrayToStringArray(buffer: any): any {
+  return buffer.map((buf: any) => {
+    if (Array.isArray(buf)) {
+      return bufferArrayToStringArray(buf)
+    } else {
+      return buf.toString('hex')
+    }
+  })
+}
+
+describe('invalid geth tests', function () {
+  for (const gethCase of gethCases) {
+    const buffer = Buffer.from(gethCase.input, 'hex')
+    it('should pass Geth test', function (done) {
+      try {
+        const output = RLP.decode(buffer)
+        if (gethCase.error) {
+          done(`should throw: ${gethCase.input}`)
+        } else {
+          if (Array.isArray(output)) {
+            const arrayOutput = bufferArrayToStringArray(output)
+            if (JSON.stringify(arrayOutput) == JSON.stringify(gethCase.value!)) {
+              done()
+            } else {
+              done(`invalid output: ${gethCase.input}`)
+            }
+          } else {
+            if (output.toString('hex') != gethCase.value) {
+              done(`invalid output: ${gethCase.input}`)
+            } else {
+              done()
+            }
+          }
+        }
+      } catch (e) {
+        if (!gethCase.error) {
+          done(`should not throw: ${gethCase.input}`)
+        } else {
+          done()
+        }
+      }
+    })
+  }
+})
