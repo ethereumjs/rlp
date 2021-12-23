@@ -75,6 +75,7 @@ describe('RLP encoding (string):', function () {
 describe('RLP encoding (list):', function () {
   it('length of list 0-55 should return (0xc0+len(data)) plus data', function () {
     const encodedArrayOfStrings = RLP.encode(['dog', 'god', 'cat'])
+    assert.equal(RLP.getLength(encodedArrayOfStrings), 13)
     assert.equal(13, encodedArrayOfStrings.length)
     assert.equal(encodedArrayOfStrings[0], 204)
     assert.equal(encodedArrayOfStrings[1], 131)
@@ -82,9 +83,26 @@ describe('RLP encoding (list):', function () {
     assert.equal(encodedArrayOfStrings[12], 116)
   })
 
-  // it('length of list >55 should return 0xf7+len(len(data)) plus len(data) plus data', function () {
-  //   // need a test case here!
-  // })
+  it('length of list >55 should return 0xf7+len(len(data)) plus len(data) plus data', function () {
+    const data = [
+      'dog',
+      'god',
+      'cat',
+      'zoo255zoo255zzzzzzzzzzzzssssssssssssssssssssssssssssssssssssssssssssss',
+    ]
+    const encodedArrayOfStrings = RLP.encode(data)
+    assert.equal(RLP.getLength(encodedArrayOfStrings), 86)
+    const str = encodedArrayOfStrings.toString()
+    for (const innerStr of data) {
+      assert.ok(str.includes(innerStr))
+    }
+    // Verified with Geth's RLPDump
+    const expectedBuffer = Buffer.from(
+      'f85483646f6783676f6483636174b8467a6f6f3235357a6f6f3235357a7a7a7a7a7a7a7a7a7a7a7a73737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373',
+      'hex'
+    )
+    assert.ok(encodedArrayOfStrings.equals(expectedBuffer))
+  })
 })
 
 describe('RLP encoding (BigInt):', function () {
