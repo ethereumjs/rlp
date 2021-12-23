@@ -1,7 +1,7 @@
 import { version } from 'process'
 import * as assert from 'assert'
 import * as RLP from '../src'
-import BN from 'bn.js'
+import { BN } from 'ethereumjs-util'
 const Buffer = require('buffer').Buffer // needed for karma
 
 describe('invalid rlps', function () {
