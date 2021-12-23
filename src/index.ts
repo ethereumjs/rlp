@@ -166,9 +166,6 @@ function _decode(input: Buffer): Decoded {
       throw new Error('invalid RLP: expected string length to be greater than 55')
     }
     data = safeSlice(input, llength, length + llength)
-    if (data.length < length) {
-      throw new Error('invalid RLP: not enough bytes for string')
-    }
 
     return {
       data: data,
@@ -201,9 +198,6 @@ function _decode(input: Buffer): Decoded {
     }
 
     innerRemainder = safeSlice(input, llength, totalLength)
-    if (innerRemainder.length === 0) {
-      throw new Error('invalid rlp, List has a invalid length')
-    }
 
     while (innerRemainder.length) {
       d = _decode(innerRemainder)
