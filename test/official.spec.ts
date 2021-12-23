@@ -2,7 +2,6 @@ import assert from 'assert'
 import BN from 'bn.js'
 import * as RLP from '../src'
 import official from './fixture/rlptest.json'
-import invalid from './fixture/invalid.json'
 
 describe('offical tests', function () {
   for (const [testName, test] of Object.entries(official.tests)) {
@@ -22,66 +21,8 @@ describe('offical tests', function () {
   }
 })
 
-describe('invalid tests', function () {
-  for (const [testName, test] of Object.entries(invalid.tests)) {
-    it(`should pass ${testName}`, function (done) {
-      let { out } = test
-      if (out[0] === '0' && out[1] === 'x') {
-        out = out.slice(2)
-      }
-      try {
-        RLP.decode(Buffer.from(out, 'hex'))
-        assert.fail(`should not decode invalid RLPs, input: ${out}`)
-      } finally {
-        done()
-      }
-    })
-  }
-})
-
 // The tests below are taken from Geth
 // https://github.com/ethereum/go-ethereum/blob/99be62a9b16fd7b3d1e2e17f1e571d3bef34f122/rlp/decode_test.go
-// Not all tests were taken; some which throw due to type errors in Geth are ran against Geth's RLPdump to
-// see if there is a decode error or not. In both cases, the test is convered to either reflect the
-// expected value, or if the test is invalid, it is added as error test case
-
-const invalidGethCases: string[] = [
-  'F800',
-  'BA0002FFFF',
-  'B90000',
-  'B800',
-  '817F',
-  '8100',
-  '8101',
-  'C8C9010101010101010101',
-  'F90000',
-  'F90055',
-  'FA0002FFFF',
-  'BFFFFFFFFFFFFFFFFFFF',
-  'C801',
-  'CD04040404FFFFFFFFFFFFFFFFFF0303',
-  'C40102030401',
-  'C4010203048180',
-  '81',
-  'BFFFFFFFFFFFFFFF',
-  'C801',
-]
-
-describe('invalid geth tests', function () {
-  for (const gethCase of invalidGethCases) {
-    const buffer = Buffer.from(gethCase, 'hex')
-    it('should pass Geth test', function (done) {
-      try {
-        RLP.decode(buffer)
-        assert.fail(`should throw: ${gethCase}`)
-      } finally {
-        done()
-      }
-    })
-  }
-})
-
-// Note; these tests also contain some invalid cases
 
 const gethCases = [
   { input: '05', value: '05' },
@@ -93,11 +34,8 @@ const gethCases = [
   { input: '850505050505', value: '0505050505' },
   { input: 'C0', value: [] },
   { input: '00', value: '00' },
-  { input: '8105', error: true },
   { input: '820004', value: '0004' },
-  { input: 'B8020004', error: true },
   { input: 'C80102030405060708', value: ['01', '02', '03', '04', '05', '06', '07', '08'] },
-  { input: 'F8020004', error: true },
   { input: 'C50102030405', value: ['01', '02', '03', '04', '05'] },
   { input: 'C102', value: ['02'] },
   { input: '8D6162636465666768696A6B6C6D', value: '6162636465666768696a6b6c6d' },
@@ -211,7 +149,6 @@ const gethCases = [
   { input: 'C50183040404', value: ['01', '040404'] },
   {
     input: 'c330f9c030f93030ce3030303030303030bd303030303030',
-    error: true,
   },
 ]
 
@@ -241,13 +178,8 @@ describe('geth tests', function () {
         } else {
           assert.equal(output.toString('hex'), gethCase.value, `invalid output: ${gethCase.input}`)
         }
-        if (gethCase.error) {
-          assert.fail(`should throw: ${gethCase.input}`)
-        }
       } catch (e) {
-        if (!gethCase.error) {
-          assert.fail(`should not throw: ${gethCase.input}`)
-        }
+        assert.fail(`should not throw: ${gethCase.input}`)
       } finally {
         done()
       }
