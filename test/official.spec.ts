@@ -156,9 +156,8 @@ function bufferArrayToStringArray(buffer: any): any {
   return buffer.map((buf: any) => {
     if (Array.isArray(buf)) {
       return bufferArrayToStringArray(buf)
-    } else {
-      return buf.toString('hex')
     }
+    return buf.toString('hex')
   })
 }
 
