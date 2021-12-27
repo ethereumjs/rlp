@@ -1,6 +1,6 @@
-import * as assert from 'assert'
-import * as RLP from '../src'
+import assert from 'assert'
 import { BN } from 'ethereumjs-util'
+import * as RLP from '../src'
 
 describe('offical tests', function () {
   const officalTests = require('./fixture/rlptest.json').tests

@@ -5,7 +5,7 @@
 [![Coverage Status](https://img.shields.io/coveralls/ethereumjs/rlp.svg)](https://coveralls.io/r/ethereumjs/rlp)
 [![Discord](https://img.shields.io/static/v1?logo=discord&label=discord&message=Join&color=blue)](https://discord.gg/TNwARpR)
 
-[Recursive Length](https://github.com/ethereum/wiki/wiki/RLP) Prefix Encoding for Node.js.
+[Recursive Length Prefix](https://eth.wiki/en/fundamentals/rlp) encoding for Node.js.
 
 ## INSTALL
 
@@ -16,7 +16,7 @@ install with `-g` if you want to use the cli.
 ## USAGE
 
 ```typescript
-import * as assert from 'assert'
+import assert from 'assert'
 import * as rlp from 'rlp'
 
 const nestedList = [[], [[]], [[], [[]]]]

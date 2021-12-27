@@ -57,7 +57,6 @@
     "@ethereumjs/config-coverage": "^2.0.0",
     "@ethereumjs/config-typescript": "^2.0.0",
     "@ethereumjs/eslint-config-defaults": "^2.0.0",
-    "@types/bn.js": "^5.1.0",
     "@types/mocha": "^9.0.0",
     "@types/node": "^12.13.0",
     "husky": "^4.2.5",

@@ -1,16 +1,15 @@
-import { intToHex, toBuffer } from 'ethereumjs-util'
-
+import { intToHex, isHexPrefixed, toBuffer, addHexPrefix } from 'ethereumjs-util'
 import { Decoded, Input, List } from './types'
 
 // Types exported outside of this package
 export { Decoded, Input, List }
 
 /**
- * RLP Encoding based on: https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP
+ * RLP Encoding based on: https://eth.wiki/en/fundamentals/rlp
  * This function takes in a data, convert it to buffer if not, and a length for recursion
  * @param input - will be converted to buffer
  * @returns returns buffer of encoded data
- **/
+ */
 export function encode(input: Input): Buffer {
   if (Array.isArray(input)) {
     const output: Buffer[] = []
@@ -19,12 +18,18 @@ export function encode(input: Input): Buffer {
     }
     const buf = Buffer.concat(output)
     return Buffer.concat([encodeLength(buf.length, 192), buf])
-  } else {
-    const inputBuf = toBuffer(input)
-    return inputBuf.length === 1 && inputBuf[0] < 128
-      ? inputBuf
-      : Buffer.concat([encodeLength(inputBuf.length, 128), inputBuf])
   }
+
+  if (typeof input === 'string' && !isHexPrefixed(input)) {
+    input = Buffer.from(input)
+  } else if (typeof input === 'bigint') {
+    input = addHexPrefix(input.toString(16))
+  }
+
+  const inputBuf = toBuffer(input)
+  return inputBuf.length === 1 && inputBuf[0] < 128
+    ? inputBuf
+    : Buffer.concat([encodeLength(inputBuf.length, 128), inputBuf])
 }
 
 /**
@@ -43,19 +48,19 @@ function safeParseInt(v: string, base: number): number {
 function encodeLength(len: number, offset: number): Buffer {
   if (len < 56) {
     return Buffer.from([len + offset])
-  } else {
-    const hexLength = intToHex(len)
-    const lLength = hexLength.length / 2
-    const firstByte = intToHex(offset + 55 + lLength)
-    return Buffer.from(firstByte + hexLength, 'hex')
   }
+
+  const hexLength = intToHex(len)
+  const lLength = hexLength.length / 2
+  const firstByte = intToHex(offset + 55 + lLength)
+  return Buffer.from(`${firstByte}${hexLength}`, 'hex')
 }
 
 /**
  * RLP Decoding based on: {@link https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP|RLP}
  * @param input - will be converted to buffer
  * @param stream - Is the input a stream (false by default)
- * @returns - returns decode Array of Buffers containg the original message
+ * @returns - returns decode Array of Buffers containing the original message
  **/
 export function decode(input: Buffer, stream?: boolean): Buffer
 export function decode(input: Buffer[], stream?: boolean): Buffer[]
@@ -65,7 +70,13 @@ export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer
     return Buffer.from([])
   }
 
-  const inputBuffer = toBuffer(input)
+  if (Array.isArray(input)) {
+    // do something?
+  } else if (typeof input === 'bigint') {
+    input = addHexPrefix(input.toString(16))
+  }
+
+  const inputBuffer = toBuffer(input as any) // TODO find out why input's `List` is an incompatible type here (when removing `as any`)
   const decoded = _decode(inputBuffer)
 
   if (stream) {
@@ -88,7 +99,11 @@ export function getLength(input: Input): Buffer | number {
     return Buffer.from([])
   }
 
-  const inputBuffer = toBuffer(input)
+  if (typeof input === 'bigint') {
+    input = addHexPrefix(input.toString(16))
+  }
+
+  const inputBuffer = toBuffer(input as any) // TODO find out why input's `List` is an incompatible type here (when removing `as any`)
   const firstByte = inputBuffer[0]
 
   if (firstByte <= 0x7f) {
