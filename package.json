@@ -10,7 +10,7 @@
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "browser": "dist.browser/index.js",
+  "browser": "./dist.browser/index.js",
   "bin": {
     "rlp": "./bin/rlp"
   },

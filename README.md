@@ -5,7 +5,7 @@
 [![Coverage Status](https://img.shields.io/coveralls/ethereumjs/rlp.svg)](https://coveralls.io/r/ethereumjs/rlp)
 [![Discord](https://img.shields.io/static/v1?logo=discord&label=discord&message=Join&color=blue)](https://discord.gg/TNwARpR)
 
-[Recursive Length Prefix](https://eth.wiki/en/fundamentals/rlp) encoding for Node.js.
+[Recursive Length Prefix](https://eth.wiki/en/fundamentals/rlp) encoding for Node.js and the browser.
 
 ## INSTALL
 
