@@ -1,10 +1,8 @@
-import type { BN } from 'ethereumjs-util'
+import { ToBufferInputTypes } from 'ethereumjs-util' // eslint-disable-line
 
-export type Input = Buffer | string | number | bigint | Uint8Array | BN | List | null
+export type Input = ToBufferInputTypes | bigint | List
 
-// Use interface extension instead of type alias to
-// make circular declaration possible.
-export interface List extends Array<Input> {}
+export type List = Input[]
 
 export interface Decoded {
   data: Buffer | Buffer[]
