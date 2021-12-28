@@ -20,6 +20,14 @@ export function encode(input: Input): Buffer {
     return Buffer.concat([encodeLength(buf.length, 192), buf])
   }
 
+  // Edge case, see https://eth.wiki/en/fundamentals/rlp
+  // "The integer 0 = [ 0x80 ]"
+  // EthereumJS-util would convert 0 to the Buffer.from('00', 'hex'), which would
+  // thus return Buffer.from('00', 'hex') when encoding that: this does not match the spec.
+  if (input === 0) {
+    return Buffer.from('80', 'hex')
+  }
+
   if (typeof input === 'string' && !isHexPrefixed(input)) {
     input = Buffer.from(input)
   } else if (typeof input === 'bigint') {
