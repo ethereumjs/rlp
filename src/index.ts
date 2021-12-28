@@ -147,7 +147,7 @@ function _decode(input: Buffer): Decoded {
     }
 
     if (length === 2 && data[0] < 0x80) {
-      throw new Error('invalid rlp encoding: byte must be less 0x80')
+      throw new Error('invalid rlp encoding: invalid prefix, single byte < 0x80 are not prefixed')
     }
 
     return {
