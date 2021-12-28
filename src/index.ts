@@ -190,7 +190,7 @@ function _decode(input: Buffer): Decoded {
     llength = firstByte - 0xf6
     length = safeParseInt(safeSlice(input, 1, llength).toString('hex'), 16)
     if (length < 56) {
-      throw new Error('invalid rlp: encoded list too short')
+      throw new Error('invalid RLP: encoded list too short')
     }
     const totalLength = llength + length
     if (totalLength > input.length) {
