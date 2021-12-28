@@ -175,7 +175,7 @@ describe('geth tests', function () {
             `invalid output: ${gethCase.input}`
           )
         } else {
-          assert.equal(output.toString('hex'), gethCase.value, `invalid output: ${gethCase.input}`)
+          assert.strictEqual(output.toString('hex'), gethCase.value, `invalid output: ${gethCase.input}`)
         }
       } catch (e) {
         assert.fail(`should not throw: ${gethCase.input}`)
