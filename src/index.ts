@@ -1,4 +1,4 @@
-import { addHexPrefix, isHexPrefixed, toBuffer } from 'ethereumjs-util'
+import { addHexPrefix, isHexPrefixed, padToEven, toBuffer } from 'ethereumjs-util'
 import { Decoded, Input, List } from './types'
 
 // Types exported outside of this package
@@ -73,9 +73,9 @@ function encodeLength(len: number, offset: number): Buffer {
   if (len < 56) {
     return Buffer.from([len + offset])
   }
-  const hexLength = len.toString(16)
+  const hexLength = padToEven(len.toString(16))
   const lLength = hexLength.length / 2
-  const firstByte = (offset + 55 + lLength).toString(16)
+  const firstByte = padToEven((offset + 55 + lLength).toString(16))
   return Buffer.from(firstByte + hexLength, 'hex')
 }
 
