@@ -169,7 +169,7 @@ describe('geth tests', function () {
         const output = RLP.decode(buffer)
         if (Array.isArray(output)) {
           const arrayOutput = bufferArrayToStringArray(output)
-          assert.equal(
+          assert.strictEqual(
             JSON.stringify(arrayOutput),
             JSON.stringify(gethCase.value!),
             `invalid output: ${gethCase.input}`
