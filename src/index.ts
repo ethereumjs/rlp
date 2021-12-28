@@ -27,9 +27,11 @@ export function encode(input: Input): Buffer {
   }
 
   const inputBuf = toBuffer(input)
-  return inputBuf.length === 1 && inputBuf[0] < 128
-    ? inputBuf
-    : Buffer.concat([encodeLength(inputBuf.length, 128), inputBuf])
+
+  if (inputBuf.length === 1 && inputBuf[0] < 128) {
+    return inputBuf
+  }
+  return Buffer.concat([encodeLength(inputBuf.length, 128), inputBuf])
 }
 
 /**
