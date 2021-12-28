@@ -91,7 +91,7 @@ describe('RLP encoding (list):', function () {
       'zoo255zoo255zzzzzzzzzzzzssssssssssssssssssssssssssssssssssssssssssssss',
     ]
     const encodedArrayOfStrings = RLP.encode(data)
-assert.strictEqual(RLP.getLength(encodedArrayOfStrings), 86)
+    assert.strictEqual(RLP.getLength(encodedArrayOfStrings), 86)
     const str = encodedArrayOfStrings.toString()
     for (const innerStr of data) {
       assert.ok(str.includes(innerStr))
