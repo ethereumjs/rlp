@@ -208,6 +208,20 @@ describe('RLP decoding (int):', function () {
   })
 })
 
+describe('RLP decoding (BigInt):', function () {
+  it('first byte < 0x7f, return itself', function () {
+    const decodedSmallNum = <Buffer>RLP.decode(BigInt(15))
+    assert.strictEqual(1, decodedSmallNum.length)
+    assert.strictEqual(decodedSmallNum[0], 15)
+  })
+
+  it('first byte < 0xb7, data is everything except first byte', function () {
+    const decodedNum = <Buffer>RLP.decode(BigInt(0x820400))
+    assert.strictEqual(2, decodedNum.length)
+    assert.strictEqual(decodedNum.toString('hex'), '0400')
+  })
+})
+
 describe('strings over 55 bytes long', function () {
   const testString =
     'This function takes in a data, convert it to buffer if not, and a length for recursion'
