@@ -5,6 +5,7 @@ module.exports = {
   },
   env: {
     mocha: true,
+    es2020: true
   },
   rules: {
     '@typescript-eslint/no-use-before-define': 'off',

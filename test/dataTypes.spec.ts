@@ -130,6 +130,26 @@ describe('RLP encoding (BN):', function () {
   })
 })
 
+describe('RLP encoding (bigint):', function () {
+  it('length of bigint = 1, less than 0x7f, similar to string', function () {
+    const encodedNumber = RLP.encode(BigInt(15))
+    assert.strictEqual(1, encodedNumber.length)
+    assert.strictEqual(encodedNumber[0], 15)
+  })
+
+  it('length of bigint > 55, similar to string', function () {
+    const encodedNumber = RLP.encode(BigInt(1024))
+    assert.strictEqual(3, encodedNumber.length)
+    assert.strictEqual(encodedNumber[0], 130)
+    assert.strictEqual(encodedNumber[1], 4)
+    assert.strictEqual(encodedNumber[2], 0)
+  })
+
+  it('it should handle zero', function () {
+    assert.strictEqual(RLP.encode(BigInt(0)).toString('hex'), '80')
+  })
+})
+
 describe('RLP encoding (integer):', function () {
   it('length of int = 1, less than 0x7f, similar to string', function () {
     const encodedNumber = RLP.encode(15)
@@ -397,7 +417,7 @@ describe('hex prefix', function () {
   it('should have the same value', function () {
     const a = RLP.encode('0x88f')
     const b = RLP.encode('88f')
-    assert.notEqual(a.toString('hex'), b.toString('hex'))
+    assert.notStrictEqual(a.toString('hex'), b.toString('hex'))
   })
 })
 
@@ -414,5 +434,44 @@ describe('recursive typings', function () {
     // tslint:disable-next-line:no-dead-store
     const a = RLP.encode([[[[[0]]]]])
     assert.ok(assertType<typeof a, Buffer>(true))
+  })
+})
+
+describe('getLength', function () {
+  it('should return the right RLP length', function () {
+    assert.ok((<Buffer>RLP.getLength(0)).equals(Buffer.from([])))
+    assert.strictEqual(RLP.getLength(1), 1)
+    assert.ok((<Buffer>RLP.getLength(BigInt(0))).equals(Buffer.from([])))
+    assert.strictEqual(RLP.getLength(BigInt(1)), 1)
+  })
+})
+
+describe('stream', function () {
+  it('should handle stream decoding correctly', function () {
+    const encodedNumber = RLP.encode(1)
+    const str = 'This is a string'
+    const longString =
+      'This is a long string, so we can trigger the prefix when the buffer length is larger than 55.'
+    const encodedString = RLP.encode(str)
+    const encodedLongString = RLP.encode(longString)
+    const encodedList = RLP.encode([1, 2, 3])
+    const bufferStream = Buffer.concat([
+      encodedNumber,
+      encodedString,
+      encodedLongString,
+      encodedList,
+    ])
+    let decoded = <RLP.Decoded>(<unknown>RLP.decode(bufferStream, true))
+    assert.ok((<Buffer>decoded.data).equals(Buffer.from('01', 'hex')))
+    decoded = <RLP.Decoded>(<unknown>RLP.decode(decoded.remainder, true))
+    assert.strictEqual(decoded.data.toString(), str)
+    decoded = <RLP.Decoded>(<unknown>RLP.decode(decoded.remainder, true))
+    assert.strictEqual(decoded.data.toString(), longString)
+    decoded = <RLP.Decoded>(<unknown>RLP.decode(decoded.remainder, true))
+    assert.ok(decoded.data.length === 3)
+    assert.ok((<Buffer>decoded.data[0]).equals(Buffer.from('01', 'hex')))
+    assert.ok((<Buffer>decoded.data[1]).equals(Buffer.from('02', 'hex')))
+    assert.ok((<Buffer>decoded.data[2]).equals(Buffer.from('03', 'hex')))
+    assert.ok(decoded.remainder.length === 0)
   })
 })

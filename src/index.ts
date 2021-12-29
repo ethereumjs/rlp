@@ -24,7 +24,7 @@ export function encode(input: Input): Buffer {
   // "The integer 0 = [ 0x80 ]"
   // EthereumJS-util would convert 0 to the Buffer.from('00', 'hex'), which would
   // thus return Buffer.from('00', 'hex') when encoding that: this does not match the spec.
-  if (input === 0) {
+  if (input === 0 || input === BigInt(0)) {
     return Buffer.from('80', 'hex')
   }
 
