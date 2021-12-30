@@ -45,13 +45,11 @@ describe('RLP encoding (string):', function () {
   it('should return itself if single byte and less than 0x7f:', function () {
     const encodedSelf = RLP.encode('a')
     assert.strictEqual(encodedSelf.toString(), 'a')
-    assert.strictEqual(RLP.getLength(encodedSelf), 1)
   })
 
   it('length of string 0-55 should return (0x80+len(data)) plus data', function () {
     const encodedDog = RLP.encode('dog')
     assert.strictEqual(4, encodedDog.length)
-    assert.strictEqual(RLP.getLength(encodedDog), 4)
     assert.strictEqual(encodedDog[0], 131)
     assert.strictEqual(encodedDog[1], 100)
     assert.strictEqual(encodedDog[2], 111)
@@ -63,7 +61,6 @@ describe('RLP encoding (string):', function () {
       'zoo255zoo255zzzzzzzzzzzzssssssssssssssssssssssssssssssssssssssssssssss'
     )
     assert.strictEqual(72, encodedLongString.length)
-    assert.strictEqual(RLP.getLength(encodedLongString), 2)
     assert.strictEqual(encodedLongString[0], 184)
     assert.strictEqual(encodedLongString[1], 70)
     assert.strictEqual(encodedLongString[2], 122)
@@ -75,7 +72,6 @@ describe('RLP encoding (string):', function () {
 describe('RLP encoding (list):', function () {
   it('length of list 0-55 should return (0xc0+len(data)) plus data', function () {
     const encodedArrayOfStrings = RLP.encode(['dog', 'god', 'cat'])
-    assert.strictEqual(RLP.getLength(encodedArrayOfStrings), 13)
     assert.strictEqual(13, encodedArrayOfStrings.length)
     assert.strictEqual(encodedArrayOfStrings[0], 204)
     assert.strictEqual(encodedArrayOfStrings[1], 131)
@@ -91,7 +87,6 @@ describe('RLP encoding (list):', function () {
       'zoo255zoo255zzzzzzzzzzzzssssssssssssssssssssssssssssssssssssssssssssss',
     ]
     const encodedArrayOfStrings = RLP.encode(data)
-    assert.strictEqual(RLP.getLength(encodedArrayOfStrings), 86)
     const str = encodedArrayOfStrings.toString()
     for (const innerStr of data) {
       assert.ok(str.includes(innerStr))

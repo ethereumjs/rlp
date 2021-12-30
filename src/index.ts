@@ -92,36 +92,6 @@ export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer
   return decoded.data
 }
 
-/**
- * Get the length of the RLP input
- * @param input
- * @returns The length of the input or an empty Buffer if no input
- */
-export function getLength(input: Input): Buffer | number {
-  if (!input || (input as any).length === 0) {
-    return Buffer.from([])
-  }
-
-  const inputBuffer = toBuffer(input)
-  const firstByte = inputBuffer[0]
-
-  if (firstByte <= 0x7f) {
-    return inputBuffer.length
-  } else if (firstByte <= 0xb7) {
-    return firstByte - 0x7f
-  } else if (firstByte <= 0xbf) {
-    return firstByte - 0xb6
-  } else if (firstByte <= 0xf7) {
-    // a list between  0-55 bytes long
-    return firstByte - 0xbf
-  } else {
-    // a list  over 55 bytes long
-    const llength = firstByte - 0xf6
-    const length = safeParseInt(safeSlice(inputBuffer, 1, llength).toString('hex'), 16)
-    return llength + length
-  }
-}
-
 /** Decode an input with RLP */
 function _decode(input: Buffer): Decoded {
   let length, llength, data, innerRemainder, d
