@@ -315,7 +315,7 @@ describe('zero values', function () {
 
   it('decode a zero (using decodeStreaming)', function () {
     const decode = RLP.decodeStreaming(Buffer.from([0]))
-    assert.deepEqual(decode, { data: Buffer.from([0]), remainder: Buffer.alloc(0) })
+    assert.deepStrictEqual(decode, { data: Buffer.from([0]), remainder: Buffer.alloc(0) })
   })
 })
 
@@ -407,7 +407,7 @@ describe('hex prefix', function () {
   it('should have the same value', function () {
     const a = RLP.encode('0x88f')
     const b = RLP.encode('88f')
-    assert.notEqual(a.toString('hex'), b.toString('hex'))
+    assert.notStrictEqual(a.toString('hex'), b.toString('hex'))
   })
 })
 
