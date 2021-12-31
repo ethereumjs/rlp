@@ -206,8 +206,12 @@ describe('strings over 55 bytes long', function () {
 
   it('should decode (using decodeStreaming)', function () {
     const decoded = RLP.decodeStreaming(encoded)
-    assert.equal(decoded.data.toString(), testString)
+    assert.strictEqual(decoded.data.toString(), testString)
     assert.ok(decoded.remainder.equals(Buffer.alloc(0)))
+  })
+  it('shoudl return empty array (with decodeStreaming)', function () {
+    const decoded = RLP.decodeStreaming(Buffer.from([]))
+    assert.ok(decoded.data.length === 0)
   })
 })
 
