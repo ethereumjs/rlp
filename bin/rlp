@@ -42,7 +42,7 @@ if (method === 'encode') {
  */
 function baToJSON(ba) {
   if (Buffer.isBuffer(ba)) {
-    return ba.toString()
+    return ba.toString('hex')
   } else if (ba instanceof Array) {
     const arr = []
     for (let i = 0; i < ba.length; i++) {
