@@ -33,8 +33,8 @@ assert.deepEqual(nestedList, decoded)
 
 ## CLI
 
-`rlp encode <json string>`
-`rlp decode <hex string>`
+`rlp encode <JSON string>`
+`rlp decode <0x-prefixed hex string>`
 
 ### Examples
 
