@@ -15,12 +15,12 @@ describe('offical tests', function () {
       let incoming: any = test.in
       // if we are testing a big number
       if (incoming[0] === '#') {
-        incoming = numberToBytes(BigInt(incoming.slice(1)))
+        incoming = numberToBytes(BigInt(incoming.slice(1))) // eslint-disable-line
       }
 
       const encoded = RLP.encode(incoming)
       const out = test.out[0] === '0' && test.out[1] === 'x' ? test.out.slice(2) : test.out
-      assert.deepStrictEqual(encoded, (hexToBytes(out)))
+      assert.deepStrictEqual(encoded, hexToBytes(out))
       done()
     })
   }

@@ -47,7 +47,10 @@ describe('CLI command:', function () {
 describe('Cross-frame:', function () {
   it('should be able to encode Arrays across stack frames', function () {
     assert.strictEqual(
-      vm.runInNewContext("Array.from(RLP.encode(['dog', 'god', 'cat'])).map(n => n.toString(16).padStart(2, '0')).join('')", { RLP }),
+      vm.runInNewContext(
+        "Array.from(RLP.encode(['dog', 'god', 'cat'])).map(n => n.toString(16).padStart(2, '0')).join('')",
+        { RLP }
+      ),
       'cc83646f6783676f6483636174'
     )
   })
