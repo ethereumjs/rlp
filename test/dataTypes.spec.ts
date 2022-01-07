@@ -174,7 +174,7 @@ describe('RLP decoding (int):', function () {
 describe('strings over 55 bytes long', function () {
   const testString =
     'This function takes in a data, convert it to buffer if not, and a length for recursion'
-  const testBuffer = RLP.utils.utf8ToBytes(testString)
+  const testBuffer = utils.utf8ToBytes(testString)
   let encoded: Uint8Array
 
   it('should encode it', function () {
