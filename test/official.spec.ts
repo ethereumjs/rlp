@@ -1,31 +1,13 @@
 import assert from 'assert'
 import * as RLP from '../src'
 import official from './fixture/rlptest.json'
+const { bytesToHex, hexToBytes } = RLP.utils
 
-function arrayToHex(uint8a: Uint8Array): string {
-   // pre-caching chars could speed this up 6x.
-   let hex = ''
-   for (let i = 0; i < uint8a.length; i++) {
-     hex += uint8a[i].toString(16).padStart(2, '0')
-   }
-   return hex
- }
-
- function hexToArray(hex: string): Uint8Array {
-   hex = hex.length & 1 ? `0${hex}` : hex
-   const array = new Uint8Array(hex.length / 2)
-   for (let i = 0; i < array.length; i++) {
-     const j = i * 2
-     array[i] = Number.parseInt(hex.slice(j, j + 2), 16)
-   }
-   return array
- }
-
- function numberToArray(num: number | bigint) {
-   const hex = num.toString(16)
-   return hexToArray(hex)
- }
-
+function numberToBytes(a: bigint): Uint8Array {
+  const hex = a.toString(16)
+  const pad = hex.length % 2 ? `0${hex}` : hex
+  return hexToBytes(pad)
+}
 
 describe('offical tests', function () {
   for (const [testName, test] of Object.entries(official.tests)) {
@@ -33,13 +15,12 @@ describe('offical tests', function () {
       let incoming: any = test.in
       // if we are testing a big number
       if (incoming[0] === '#') {
-        const bn = BigInt(incoming.slice(1))
-        incoming = Buffer.from(numberToArray(bn))
+        incoming = numberToBytes(BigInt(incoming.slice(1)))
       }
 
       const encoded = RLP.encode(incoming)
       const out = test.out[0] === '0' && test.out[1] === 'x' ? test.out.slice(2) : test.out
-      assert.ok(encoded.equals(Buffer.from(out, 'hex')))
+      assert.ok(encoded.equals(hexToBytes(out)))
       done()
     })
   }
@@ -181,13 +162,13 @@ function bufferArrayToStringArray(buffer: any): any {
     if (Array.isArray(buf)) {
       return bufferArrayToStringArray(buf)
     }
-    return buf.toString('hex')
+    return bytesToHex(buf)
   })
 }
 
 describe('geth tests', function () {
   for (const gethCase of gethCases) {
-    const buffer = Buffer.from(gethCase.input, 'hex')
+    const buffer = hexToBytes(gethCase.input)
     it('should pass Geth test', function (done) {
       try {
         const output = RLP.decode(buffer)
@@ -200,7 +181,7 @@ describe('geth tests', function () {
           )
         } else {
           assert.strictEqual(
-            output.toString('hex'),
+            bytesToHex(Uint8Array.from(output as any)),
             gethCase.value,
             `invalid output: ${gethCase.input}`
           )

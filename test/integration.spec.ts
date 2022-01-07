@@ -3,11 +3,12 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import vm from 'vm'
 import * as RLP from '../dist'
+import { bytesToUtf8 } from './utils'
 
 describe('Distribution:', function () {
   it('should be able to execute functionality from distribution build', function () {
     const encodedSelf = RLP.encode('a')
-    assert.strictEqual(encodedSelf.toString(), 'a')
+    assert.strictEqual(bytesToUtf8(encodedSelf), 'a')
     assert.strictEqual(encodedSelf.length, 1)
   })
 })
