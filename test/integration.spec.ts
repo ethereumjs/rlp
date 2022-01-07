@@ -8,7 +8,7 @@ describe('Distribution:', function () {
   it('should be able to execute functionality from distribution build', function () {
     const encodedSelf = RLP.encode('a')
     assert.strictEqual(encodedSelf.toString(), 'a')
-    assert.strictEqual(RLP.getLength(encodedSelf), 1)
+    assert.strictEqual(encodedSelf.length, 1)
   })
 })
 

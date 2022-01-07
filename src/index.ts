@@ -44,21 +44,21 @@ function safeSlice(input: Buffer, start: number, end: number) {
  * @param v The value to parse
  * @param base The base to parse the integer into
  */
-function safeParseInt(v: string, base: number): number {
+function safeParseInt16(v: string): number {
   if (v[0] === '0' && v[1] === '0') {
     throw new Error('invalid RLP: extra zeros')
   }
 
-  return parseInt(v, base)
+  return parseInt(v, 16)
 }
 
 function encodeLength(len: number, offset: number): Buffer {
   if (len < 56) {
     return Buffer.from([len + offset])
   } else {
-    const hexLength = intToHex(len)
+    const hexLength = numberToHex(len)
     const lLength = hexLength.length / 2
-    const firstByte = intToHex(offset + 55 + lLength)
+    const firstByte = numberToHex(offset + 55 + lLength)
     return Buffer.from(firstByte + hexLength, 'hex')
   }
 }
@@ -88,36 +88,6 @@ export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer
   }
 
   return decoded.data
-}
-
-/**
- * Get the length of the RLP input
- * @param input
- * @returns The length of the input or an empty Buffer if no input
- */
-export function getLength(input: Input): Buffer | number {
-  if (!input || (input as any).length === 0) {
-    return Buffer.from([])
-  }
-
-  const inputBuffer = toBuffer(input)
-  const firstByte = inputBuffer[0]
-
-  if (firstByte <= 0x7f) {
-    return inputBuffer.length
-  } else if (firstByte <= 0xb7) {
-    return firstByte - 0x7f
-  } else if (firstByte <= 0xbf) {
-    return firstByte - 0xb6
-  } else if (firstByte <= 0xf7) {
-    // a list between  0-55 bytes long
-    return firstByte - 0xbf
-  } else {
-    // a list  over 55 bytes long
-    const llength = firstByte - 0xf6
-    const length = safeParseInt(safeSlice(inputBuffer, 1, llength).toString('hex'), 16)
-    return llength + length
-  }
 }
 
 /** Decode an input with RLP */
@@ -159,7 +129,7 @@ function _decode(input: Buffer): Decoded {
     if (input.length - 1 < llength) {
       throw new Error('invalid RLP: not enough bytes for string length')
     }
-    length = safeParseInt(safeSlice(input, 1, llength).toString('hex'), 16)
+    length = safeParseInt16(safeSlice(input, 1, llength).toString('hex'))
     if (length <= 55) {
       throw new Error('invalid RLP: expected string length to be greater than 55')
     }
@@ -186,7 +156,7 @@ function _decode(input: Buffer): Decoded {
   } else {
     // a list  over 55 bytes long
     llength = firstByte - 0xf6
-    length = safeParseInt(safeSlice(input, 1, llength).toString('hex'), 16)
+    length = safeParseInt16(safeSlice(input, 1, llength).toString('hex'))
     if (length < 56) {
       throw new Error('invalid RLP: encoded list too short')
     }
@@ -233,22 +203,7 @@ function bytesToHex(uint8a: Uint8Array): string {
   return hex
 }
 
-function hexToBytes(hex: string): Uint8Array {
-  if (typeof hex !== 'string') {
-    throw new TypeError('hexToBytes: expected string, got ' + typeof hex)
-  }
-  hex = stripHexPrefix(hex)
-  if (hex.length % 2) throw new Error('hexToBytes: received invalid unpadded hex')
-  const array = new Uint8Array(hex.length / 2)
-  for (let i = 0; i < array.length; i++) {
-    const j = i * 2
-    array[i] = Number.parseInt(hex[j] + hex[j + 1])
-  }
-  return array
-}
-
 // Concatenates two Uint8Arrays into one.
-// TODO: check if we're copying data instead of moving it and if that's ok
 function concatBytes(...arrays: Uint8Array[]): Uint8Array {
   if (arrays.length === 1) return arrays[0]
   const length = arrays.reduce((a, arr) => a + arr.length, 0)
@@ -278,17 +233,12 @@ function utf8ToBytes(utf: string): Uint8Array {
 }
 
 /** Transform an integer into its hexadecimal value */
-function numberToHexSigned(integer: number): string {
+function numberToHex(integer: number | bigint): string {
   if (integer < 0) {
     throw new Error('Invalid integer as argument, must be unsigned!')
   }
   const hex = integer.toString(16)
   return hex.length % 2 ? `0${hex}` : hex
-}
-
-/** Transform an integer into a Uint8Array */
-function numberToBytesSigned(integer: number): Uint8Array {
-  return hexToBytes(numberToHexSigned(integer))
 }
 
 /** Pad a string to be even */
@@ -296,18 +246,37 @@ function padToEven(a: string): string {
   return a.length % 2 ? `0${a}` : a
 }
 
-function intToHex(integer: number | bigint): string {
-  if (integer < 0) {
-    throw new Error('Invalid integer as argument, must be unsigned!')
+function hexToNumber(hex: string): bigint {
+  if (typeof hex !== 'string') {
+    throw new TypeError('hexToNumber: expected string, got ' + typeof hex);
   }
-  const hex = integer.toString(16)
-  return hex.length % 2 ? `0${hex}` : hex
+  // Big Endian
+  return BigInt(`0x${hex}`);
 }
 
-/** Transform an integer into a Buffer */
-function intToBuffer(integer: number | bigint): Buffer {
-  const hex = intToHex(integer)
-  return Buffer.from(hex, 'hex')
+function bytesToNumber(bytes: Uint8Array): bigint {
+  return hexToNumber(bytesToHex(bytes));
+}
+
+function parseHexByte(hexByte: string): number {
+  if (hexByte.length !== 2) throw new Error('Invalid byte sequence');
+  const byte = Number.parseInt(hexByte, 16);
+  if (Number.isNaN(byte)) throw new Error('Invalid byte sequence');
+  return byte;
+}
+
+// Caching slows it down 2-3x
+function hexToBytes(hex: string): Uint8Array {
+  if (typeof hex !== 'string') {
+    throw new TypeError('hexToBytes: expected string, got ' + typeof hex);
+  }
+  if (hex.length % 2) throw new Error('hexToBytes: received invalid unpadded hex');
+  const array = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < array.length; i++) {
+    const j = i * 2;
+    array[i] = parseHexByte(hex.slice(j, j + 2));
+  }
+  return array;
 }
 
 /** Transform anything into a Buffer */
@@ -323,7 +292,7 @@ function toBuffer(v: Input): Buffer {
       if (!v) {
         return Buffer.from([])
       } else {
-        return intToBuffer(v)
+        return Buffer.from(numberToBytes(v))
       }
     } else if (v === null || v === undefined) {
       return Buffer.from([])
