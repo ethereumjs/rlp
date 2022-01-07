@@ -5,9 +5,9 @@ export { Decoded, Input, List }
 
 /**
  * RLP Encoding based on https://eth.wiki/en/fundamentals/rlp
- * This function takes in a data, convert it to buffer if not, and a length for recursion
- * @param input - will be converted to buffer
- * @returns returns buffer of encoded data
+ * This function takes in a data, convert it to Uint8Array if not, and a length for recursion
+ * @param input - will be converted to Uint8Array
+ * @returns returns Uint8Array of encoded data
  **/
 export function encode(input: Input): Uint8Array {
   if (Array.isArray(input)) {
@@ -18,7 +18,7 @@ export function encode(input: Input): Uint8Array {
     const buf = concatBytes(...output)
     return concatBytes(encodeLength(buf.length, 192), buf)
   } else {
-    const inputBuf = Buffer.from(toBytes(input))
+    const inputBuf = toBytes(input)
     return inputBuf.length === 1 && inputBuf[0] < 128
       ? inputBuf
       : concatBytes(encodeLength(inputBuf.length, 128), inputBuf)
@@ -26,8 +26,8 @@ export function encode(input: Input): Uint8Array {
 }
 
 /**
- * Slices a Buffer, throws if the slice goes out-of-bounds of the Buffer
- * E.g. safeSlice(Buffer.from('aa', 'hex'), 1, 2) will throw.
+ * Slices a Uint8Array, throws if the slice goes out-of-bounds of the Uint8Array
+ * E.g. safeSlice(Uint8Array.from('aa', 'hex'), 1, 2) will throw.
  * @param input
  * @param start
  * @param end
@@ -36,7 +36,7 @@ function safeSlice(input: Uint8Array, start: number, end: number) {
   if (end > input.length) {
     throw new Error('invalid RLP (safeSlice): end slice of Uint8Array out-of-bounds')
   }
-  return Buffer.from(input.slice(start, end))
+  return input.slice(start, end)
 }
 
 /**
@@ -45,7 +45,6 @@ function safeSlice(input: Uint8Array, start: number, end: number) {
  * @param base The base to parse the integer into
  */
 function decodeLength(v: Uint8Array): number {
-  v = Uint8Array.from(v);
   if (v[0] === 0 && v[1] === 0) {
     throw new Error('invalid RLP: extra zeros')
   }
@@ -55,31 +54,31 @@ function decodeLength(v: Uint8Array): number {
 
 function encodeLength(len: number, offset: number): Uint8Array {
   if (len < 56) {
-    return Buffer.from([len + offset])
+    return Uint8Array.from([len + offset])
   } else {
     const hexLength = numberToHex(len)
     const lLength = hexLength.length / 2
     const firstByte = numberToHex(offset + 55 + lLength)
-    return Buffer.from(hexToBytes(firstByte + hexLength))
+    return Uint8Array.from(hexToBytes(firstByte + hexLength))
   }
 }
 
 /**
  * RLP Decoding based on https://eth.wiki/en/fundamentals/rlp
- * @param input - will be converted to buffer
+ * @param input - will be converted to Uint8Array
  * @param stream - Is the input a stream (false by default)
- * @returns - returns decode Array of Buffers containing the original message
+ * @returns - returns decode Array of Uint8Arrays containing the original message
  **/
-export function decode(input: Buffer, stream?: boolean): Buffer
-export function decode(input: Buffer[], stream?: boolean): Buffer[]
-export function decode(input: Input, stream?: boolean): Buffer[] | Buffer | Decoded
-export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer | Decoded {
+export function decode(input: Uint8Array, stream?: boolean): Uint8Array
+export function decode(input: Uint8Array[], stream?: boolean): Uint8Array[]
+export function decode(input: Input, stream?: boolean): Uint8Array[] | Uint8Array | Decoded
+export function decode(input: Input, stream: boolean = false): Uint8Array[] | Uint8Array | Decoded {
   if (!input || (input as any).length === 0) {
-    return Buffer.from([])
+    return Uint8Array.from([])
   }
 
-  const inputBuffer = Buffer.from(toBytes(input))
-  const decoded = _decode(inputBuffer)
+  const inputBytes = toBytes(input)
+  const decoded = _decode(inputBytes)
 
   if (stream) {
     return decoded
@@ -92,17 +91,16 @@ export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer
 }
 
 /** Decode an input with RLP */
-function _decode(input2: Buffer): Decoded {
-  let length: number, llength: number, data: Buffer, innerRemainder: Buffer, d: Decoded
-  let input = Uint8Array.from(input2)
+function _decode(input: Uint8Array): Decoded {
+  let length: number, llength: number, data: Uint8Array, innerRemainder: Uint8Array, d: Decoded
   const decoded = []
   const firstByte = input[0]
 
   if (firstByte <= 0x7f) {
     // a single byte whose value is in the [0x00, 0x7f] range, that byte is its own RLP encoding.
     return {
-      data: Buffer.from(input.slice(0, 1)),
-      remainder: Buffer.from(input.slice(1)),
+      data: input.slice(0, 1),
+      remainder: input.slice(1),
     }
   } else if (firstByte <= 0xb7) {
     // string is 0-55 bytes long. A single byte with value 0x80 plus the length of the string followed by the string
@@ -111,7 +109,7 @@ function _decode(input2: Buffer): Decoded {
 
     // set 0x80 null to 0
     if (firstByte === 0x80) {
-      data = Buffer.from([])
+      data = Uint8Array.from([])
     } else {
       data = safeSlice(input, 1, length)
     }
@@ -122,7 +120,7 @@ function _decode(input2: Buffer): Decoded {
 
     return {
       data: data,
-      remainder: Buffer.from(input.slice(length)),
+      remainder: input.slice(length),
     }
   } else if (firstByte <= 0xbf) {
     // string is greater than 55 bytes long. A single byte with the value (0xb7 plus the length of the length),
@@ -139,7 +137,7 @@ function _decode(input2: Buffer): Decoded {
 
     return {
       data: data,
-      remainder: Buffer.from(input.slice(length + llength)),
+      remainder: input.slice(length + llength),
     }
   } else if (firstByte <= 0xf7) {
     // a list between  0-55 bytes long
@@ -147,13 +145,13 @@ function _decode(input2: Buffer): Decoded {
     innerRemainder = safeSlice(input, 1, length)
     while (innerRemainder.length) {
       d = _decode(innerRemainder)
-      decoded.push(d.data as Buffer)
+      decoded.push(d.data as Uint8Array)
       innerRemainder = d.remainder
     }
 
     return {
       data: decoded,
-      remainder: Buffer.from(input.slice(length)),
+      remainder: input.slice(length),
     }
   } else {
     // a list  over 55 bytes long
@@ -171,13 +169,13 @@ function _decode(input2: Buffer): Decoded {
 
     while (innerRemainder.length) {
       d = _decode(innerRemainder)
-      decoded.push(d.data as Buffer)
+      decoded.push(d.data as Uint8Array)
       innerRemainder = d.remainder
     }
 
     return {
       data: decoded,
-      remainder: Buffer.from(input.slice(totalLength)),
+      remainder: input.slice(totalLength),
     }
   }
 }
@@ -206,24 +204,24 @@ function bytesToHex(uint8a: Uint8Array): string {
 }
 
 function parseHexByte(hexByte: string): number {
-  if (hexByte.length !== 2) throw new Error('Invalid byte sequence');
-  const byte = Number.parseInt(hexByte, 16);
-  if (Number.isNaN(byte)) throw new Error('Invalid byte sequence');
-  return byte;
+  if (hexByte.length !== 2) throw new Error('Invalid byte sequence')
+  const byte = Number.parseInt(hexByte, 16)
+  if (Number.isNaN(byte)) throw new Error('Invalid byte sequence')
+  return byte
 }
 
 // Caching slows it down 2-3x
 function hexToBytes(hex: string): Uint8Array {
   if (typeof hex !== 'string') {
-    throw new TypeError('hexToBytes: expected string, got ' + typeof hex);
+    throw new TypeError('hexToBytes: expected string, got ' + typeof hex)
   }
-  if (hex.length % 2) throw new Error('hexToBytes: received invalid unpadded hex');
-  const array = new Uint8Array(hex.length / 2);
+  if (hex.length % 2) throw new Error('hexToBytes: received invalid unpadded hex')
+  const array = new Uint8Array(hex.length / 2)
   for (let i = 0; i < array.length; i++) {
-    const j = i * 2;
-    array[i] = parseHexByte(hex.slice(j, j + 2));
+    const j = i * 2
+    array[i] = parseHexByte(hex.slice(j, j + 2))
   }
-  return array;
+  return array
 }
 
 // Concatenates two Uint8Arrays into one.
@@ -265,23 +263,23 @@ function padToEven(a: string): string {
 
 function hexToNumber(hex: string): bigint {
   if (typeof hex !== 'string') {
-    throw new TypeError('hexToNumber: expected string, got ' + typeof hex);
+    throw new TypeError('hexToNumber: expected string, got ' + typeof hex)
   }
   // Big Endian
-  return BigInt(`0x${hex}`);
+  return BigInt(`0x${hex}`)
 }
 
 function bytesToNumber(bytes: Uint8Array): bigint {
-  return hexToNumber(bytesToHex(bytes));
+  return hexToNumber(bytesToHex(bytes))
 }
 
 export const utils = {
   bytesToHex,
   hexToBytes,
-  utf8ToBytes
+  utf8ToBytes,
 }
 
-/** Transform anything into a Buffer */
+/** Transform anything into a Uint8Array */
 function toBytes(v: Input): Uint8Array {
   if (!(v instanceof Uint8Array)) {
     if (typeof v === 'string') {
