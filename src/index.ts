@@ -44,22 +44,23 @@ function safeSlice(input: Buffer, start: number, end: number) {
  * @param v The value to parse
  * @param base The base to parse the integer into
  */
-function safeParseInt16(v: string): number {
-  if (v[0] === '0' && v[1] === '0') {
+function decodeLength(v: Uint8Array): number {
+  v = Uint8Array.from(v);
+  if (v[0] === 0 && v[1] === 0) {
     throw new Error('invalid RLP: extra zeros')
   }
 
-  return parseInt(v, 16)
+  return parseHexByte(bytesToHex(v))
 }
 
-function encodeLength(len: number, offset: number): Buffer {
+function encodeLength(len: number, offset: number): Uint8Array {
   if (len < 56) {
     return Buffer.from([len + offset])
   } else {
     const hexLength = numberToHex(len)
     const lLength = hexLength.length / 2
     const firstByte = numberToHex(offset + 55 + lLength)
-    return Buffer.from(firstByte + hexLength, 'hex')
+    return Buffer.from(hexToBytes(firstByte + hexLength))
   }
 }
 
@@ -129,7 +130,7 @@ function _decode(input: Buffer): Decoded {
     if (input.length - 1 < llength) {
       throw new Error('invalid RLP: not enough bytes for string length')
     }
-    length = safeParseInt16(bytesToHex(safeSlice(input, 1, llength)))
+    length = decodeLength(safeSlice(input, 1, llength))
     if (length <= 55) {
       throw new Error('invalid RLP: expected string length to be greater than 55')
     }
@@ -156,7 +157,7 @@ function _decode(input: Buffer): Decoded {
   } else {
     // a list  over 55 bytes long
     llength = firstByte - 0xf6
-    length = safeParseInt16(bytesToHex(safeSlice(input, 1, llength)))
+    length = decodeLength(safeSlice(input, 1, llength))
     if (length < 56) {
       throw new Error('invalid RLP: encoded list too short')
     }
