@@ -71,7 +71,7 @@ const invalidGethCases: string[] = [
 
 describe('invalid geth tests', function () {
   for (const gethCase of invalidGethCases) {
-    const buffer = RLP.utils.hexToBytes(gethCase)
+    const buffer = utils.hexToBytes(gethCase)
     it('should pass Geth test', function (done) {
       try {
         RLP.decode(buffer)
