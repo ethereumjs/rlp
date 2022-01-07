@@ -261,18 +261,6 @@ function padToEven(a: string): string {
   return a.length % 2 ? `0${a}` : a
 }
 
-function hexToNumber(hex: string): bigint {
-  if (typeof hex !== 'string') {
-    throw new TypeError('hexToNumber: expected string, got ' + typeof hex)
-  }
-  // Big Endian
-  return BigInt(`0x${hex}`)
-}
-
-function bytesToNumber(bytes: Uint8Array): bigint {
-  return hexToNumber(bytesToHex(bytes))
-}
-
 export const utils = {
   bytesToHex,
   hexToBytes,
