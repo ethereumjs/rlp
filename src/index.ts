@@ -9,19 +9,19 @@ export { Decoded, Input, List }
  * @param input - will be converted to buffer
  * @returns returns buffer of encoded data
  **/
-export function encode(input: Input): Buffer {
+export function encode(input: Input): Uint8Array {
   if (Array.isArray(input)) {
-    const output: Buffer[] = []
+    const output: Uint8Array[] = []
     for (let i = 0; i < input.length; i++) {
       output.push(encode(input[i]))
     }
-    const buf = Buffer.concat(output)
-    return Buffer.concat([encodeLength(buf.length, 192), buf])
+    const buf = concatBytes(...output)
+    return concatBytes(encodeLength(buf.length, 192), buf)
   } else {
     const inputBuf = Buffer.from(toBytes(input))
     return inputBuf.length === 1 && inputBuf[0] < 128
       ? inputBuf
-      : Buffer.concat([encodeLength(inputBuf.length, 128), inputBuf])
+      : concatBytes(encodeLength(inputBuf.length, 128), inputBuf)
   }
 }
 
@@ -32,11 +32,11 @@ export function encode(input: Input): Buffer {
  * @param start
  * @param end
  */
-function safeSlice(input: Buffer, start: number, end: number) {
+function safeSlice(input: Uint8Array, start: number, end: number) {
   if (end > input.length) {
-    throw new Error('invalid RLP (safeSlice): end slice of Buffer out-of-bounds')
+    throw new Error('invalid RLP (safeSlice): end slice of Uint8Array out-of-bounds')
   }
-  return input.slice(start, end)
+  return Buffer.from(input.slice(start, end))
 }
 
 /**
@@ -92,16 +92,17 @@ export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer
 }
 
 /** Decode an input with RLP */
-function _decode(input: Buffer): Decoded {
-  let length, llength, data, innerRemainder, d
+function _decode(input2: Buffer): Decoded {
+  let length: number, llength: number, data: Buffer, innerRemainder: Buffer, d: Decoded
+  let input = Uint8Array.from(input2)
   const decoded = []
   const firstByte = input[0]
 
   if (firstByte <= 0x7f) {
     // a single byte whose value is in the [0x00, 0x7f] range, that byte is its own RLP encoding.
     return {
-      data: input.slice(0, 1),
-      remainder: input.slice(1),
+      data: Buffer.from(input.slice(0, 1)),
+      remainder: Buffer.from(input.slice(1)),
     }
   } else if (firstByte <= 0xb7) {
     // string is 0-55 bytes long. A single byte with value 0x80 plus the length of the string followed by the string
@@ -121,7 +122,7 @@ function _decode(input: Buffer): Decoded {
 
     return {
       data: data,
-      remainder: input.slice(length),
+      remainder: Buffer.from(input.slice(length)),
     }
   } else if (firstByte <= 0xbf) {
     // string is greater than 55 bytes long. A single byte with the value (0xb7 plus the length of the length),
@@ -138,7 +139,7 @@ function _decode(input: Buffer): Decoded {
 
     return {
       data: data,
-      remainder: input.slice(length + llength),
+      remainder: Buffer.from(input.slice(length + llength)),
     }
   } else if (firstByte <= 0xf7) {
     // a list between  0-55 bytes long
@@ -152,7 +153,7 @@ function _decode(input: Buffer): Decoded {
 
     return {
       data: decoded,
-      remainder: input.slice(length),
+      remainder: Buffer.from(input.slice(length)),
     }
   } else {
     // a list  over 55 bytes long
@@ -176,7 +177,7 @@ function _decode(input: Buffer): Decoded {
 
     return {
       data: decoded,
-      remainder: input.slice(totalLength),
+      remainder: Buffer.from(input.slice(totalLength)),
     }
   }
 }

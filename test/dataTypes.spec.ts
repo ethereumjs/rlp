@@ -8,20 +8,20 @@ const { bytesToHex, hexToBytes } = RLP.utils
 describe('invalid RLPs', function () {
   const errCases = [
     // prettier-ignore
-    {input: Buffer.from([239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 239, 191, 189, 29, 239, 191, 189, 77, 239, 191, 189, 239, 191, 189, 239, 191, 189, 93, 122, 239, 191, 189, 239, 191, 189, 239, 191, 189, 103, 239, 191, 189, 239, 191, 189, 239, 191, 189, 26, 239, 191, 189, 18, 69, 27, 239, 191, 189, 239, 191, 189, 116, 19, 239, 191, 189, 239, 191, 189, 66, 239, 191, 189, 64, 212, 147, 71, 239, 191, 189, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 239, 191, 189, 11, 222, 155, 122, 54, 42, 194, 169, 239, 191, 189, 70, 239, 191, 189, 72, 239, 191, 189, 239, 191, 189, 54, 53, 239, 191, 189, 100, 73, 239, 191, 189, 55, 239, 191, 189, 239, 191, 189, 59, 1, 239, 191, 189, 109, 239, 191, 189, 239, 191, 189, 93, 239, 191, 189, 208, 128, 239, 191, 189, 239, 191, 189, 0, 239, 191, 189, 239, 191, 189, 239, 191, 189, 15, 66, 64, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 4, 239, 191, 189, 79, 103, 239, 191, 189, 85, 239, 191, 189, 239, 191, 189, 239, 191, 189, 74, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 54, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 83, 239, 191, 189, 14, 239, 191, 189, 239, 191, 189, 239, 191, 189, 4, 63, 239, 191, 189, 63, 239, 191, 189, 41, 239, 191, 189, 239, 191, 189, 239, 191, 189, 67, 28, 239, 191, 189, 239, 191, 189, 11, 239, 191, 189, 31, 239, 191, 189, 239, 191, 189, 104, 96, 100, 239, 191, 189, 239, 191, 189, 12, 239, 191, 189, 239, 191, 189, 206, 152, 239, 191, 189, 239, 191, 189, 31, 112, 111, 239, 191, 189, 239, 191, 189, 65, 239, 191, 189, 41, 239, 191, 189, 239, 191, 189, 53, 84, 11, 239, 191, 189, 239, 191, 189, 12, 102, 24, 12, 42, 105, 109, 239, 191, 189, 58, 239, 191, 189, 4, 239, 191, 189, 104, 82, 9, 239, 191, 189, 6, 66, 91, 43, 38, 102, 117, 239, 191, 189, 105, 239, 191, 189, 239, 191, 189, 239, 191, 189, 89, 127, 239, 191, 189, 114])},
+    {input: Uint8Array.from([239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 239, 191, 189, 29, 239, 191, 189, 77, 239, 191, 189, 239, 191, 189, 239, 191, 189, 93, 122, 239, 191, 189, 239, 191, 189, 239, 191, 189, 103, 239, 191, 189, 239, 191, 189, 239, 191, 189, 26, 239, 191, 189, 18, 69, 27, 239, 191, 189, 239, 191, 189, 116, 19, 239, 191, 189, 239, 191, 189, 66, 239, 191, 189, 64, 212, 147, 71, 239, 191, 189, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 239, 191, 189, 11, 222, 155, 122, 54, 42, 194, 169, 239, 191, 189, 70, 239, 191, 189, 72, 239, 191, 189, 239, 191, 189, 54, 53, 239, 191, 189, 100, 73, 239, 191, 189, 55, 239, 191, 189, 239, 191, 189, 59, 1, 239, 191, 189, 109, 239, 191, 189, 239, 191, 189, 93, 239, 191, 189, 208, 128, 239, 191, 189, 239, 191, 189, 0, 239, 191, 189, 239, 191, 189, 239, 191, 189, 15, 66, 64, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 4, 239, 191, 189, 79, 103, 239, 191, 189, 85, 239, 191, 189, 239, 191, 189, 239, 191, 189, 74, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 54, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 239, 191, 189, 83, 239, 191, 189, 14, 239, 191, 189, 239, 191, 189, 239, 191, 189, 4, 63, 239, 191, 189, 63, 239, 191, 189, 41, 239, 191, 189, 239, 191, 189, 239, 191, 189, 67, 28, 239, 191, 189, 239, 191, 189, 11, 239, 191, 189, 31, 239, 191, 189, 239, 191, 189, 104, 96, 100, 239, 191, 189, 239, 191, 189, 12, 239, 191, 189, 239, 191, 189, 206, 152, 239, 191, 189, 239, 191, 189, 31, 112, 111, 239, 191, 189, 239, 191, 189, 65, 239, 191, 189, 41, 239, 191, 189, 239, 191, 189, 53, 84, 11, 239, 191, 189, 239, 191, 189, 12, 102, 24, 12, 42, 105, 109, 239, 191, 189, 58, 239, 191, 189, 4, 239, 191, 189, 104, 82, 9, 239, 191, 189, 6, 66, 91, 43, 38, 102, 117, 239, 191, 189, 105, 239, 191, 189, 239, 191, 189, 239, 191, 189, 89, 127, 239, 191, 189, 114])},
     {
       input: hexToBytes('efdebd'),
-      msg: 'invalid RLP (safeSlice): end slice of Buffer out-of-bounds',
+      msg: 'invalid RLP (safeSlice): end slice of Uint8Array out-of-bounds',
     },
     {
       input: hexToBytes('efb83600'),
-      msg: 'invalid RLP (safeSlice): end slice of Buffer out-of-bounds',
+      msg: 'invalid RLP (safeSlice): end slice of Uint8Array out-of-bounds',
     },
     {
       input: hexToBytes(
         'efdebdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
       ),
-      msg: 'invalid RLP (safeSlice): end slice of Buffer out-of-bounds',
+      msg: 'invalid RLP (safeSlice): end slice of Uint8Array out-of-bounds',
     },
   ]
   errCases.forEach(({ input, msg }, index) => {
@@ -95,7 +95,7 @@ describe('RLP encoding (list):', function () {
     const expectedBuffer = hexToBytes(
       'f85483646f6783676f6483636174b8467a6f6f3235357a6f6f3235357a7a7a7a7a7a7a7a7a7a7a7a73737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373'
     )
-    assert.ok(encodedArrayOfStrings.equals(expectedBuffer))
+    assert.deepStrictEqual(encodedArrayOfStrings, (expectedBuffer))
   })
 })
 
@@ -178,7 +178,7 @@ describe('strings over 55 bytes long', function () {
   const testString =
     'This function takes in a data, convert it to buffer if not, and a length for recursion'
   const testBuffer = Buffer.from(testString)
-  let encoded: Buffer
+  let encoded: Uint8Array
 
   it('should encode it', function () {
     encoded = RLP.encode(testBuffer)
@@ -188,14 +188,14 @@ describe('strings over 55 bytes long', function () {
 
   it('should decode', function () {
     const decoded = RLP.decode(encoded)
-    assert.strictEqual(bytesToUtf8(decoded), testString)
+    assert.deepStrictEqual(bytesToUtf8(Buffer.from(decoded)), testString)
   })
 })
 
 describe('list over 55 bytes long', function () {
   // prettier-ignore
   const testString = ['This', 'function', 'takes', 'in', 'a', 'data', 'convert', 'it', 'to', 'buffer', 'if', 'not', 'and', 'a', 'length', 'for', 'recursion', 'a1', 'a2', 'a3', 'ia4', 'a5', 'a6', 'a7', 'a8', 'ba9']
-  let encoded: Buffer
+  let encoded: Uint8Array
 
   it('should encode it', function () {
     encoded = RLP.encode(testString)
@@ -225,15 +225,15 @@ describe('nested lists:', function () {
   const valueList = [
     [1, 2, 3],
     [
-      Buffer.from([4, 5, 6]),
-      Buffer.from([7, 8, 9]),
-      [Buffer.from([0]), hexToBytes('abcd')],
+      Uint8Array.from([4, 5, 6]),
+      Uint8Array.from([7, 8, 9]),
+      [Uint8Array.from([0]), hexToBytes('abcd')],
     ],
   ]
-  let encoded: Buffer
+  let encoded: Uint8Array
   it('encode a nested list', function () {
     encoded = RLP.encode(nestedList)
-    assert.deepStrictEqual(encoded, Buffer.from([0xc7, 0xc0, 0xc1, 0xc0, 0xc3, 0xc0, 0xc1, 0xc0]))
+    assert.deepStrictEqual(encoded, Uint8Array.from([0xc7, 0xc0, 0xc1, 0xc0, 0xc3, 0xc0, 0xc1, 0xc0]))
   })
 
   it('should decode a nested list', function () {
@@ -244,7 +244,7 @@ describe('nested lists:', function () {
   it('should encode a list with values', function () {
     const valueEncoded = RLP.encode(valueList)
     // prettier-ignore
-    assert.deepStrictEqual(valueEncoded, Buffer.from([0xd2, 0xc3, 0x01, 0x02, 0x03, 0xcd, 0x83, 0x04, 0x05, 0x06, 0x83, 0x07, 0x08, 0x09, 0xc4, 0x00, 0x82, 0xab, 0xcd]))
+    assert.deepStrictEqual(valueEncoded, Uint8Array.from([0xd2, 0xc3, 0x01, 0x02, 0x03, 0xcd, 0x83, 0x04, 0x05, 0x06, 0x83, 0x07, 0x08, 0x09, 0xc4, 0x00, 0x82, 0xab, 0xcd]))
   })
 })
 
@@ -262,7 +262,7 @@ describe('typed lists:', function () {
   it('encode a nested list', function () {
     const valueEncoded = RLP.encode(valueList)
     // prettier-ignore
-    assert.deepStrictEqual(valueEncoded, Buffer.from([0xd2, 0xc3, 0x01, 0x02, 0x03, 0xcd, 0x83, 0x04, 0x05, 0x06, 0x83, 0x07, 0x08, 0x09, 0xc4, 0x00, 0x82, 0xab, 0xcd]))
+    assert.deepStrictEqual(valueEncoded, Uint8Array.from([0xd2, 0xc3, 0x01, 0x02, 0x03, 0xcd, 0x83, 0x04, 0x05, 0x06, 0x83, 0x07, 0x08, 0x09, 0xc4, 0x00, 0x82, 0xab, 0xcd]))
   })
 })
 
@@ -271,32 +271,32 @@ describe('null values', function () {
   let encoded
   it('encode a null array', function () {
     encoded = RLP.encode(nestedList)
-    assert.deepStrictEqual(encoded, Buffer.from([0xc1, 0x80]))
+    assert.deepStrictEqual(encoded, Uint8Array.from([0xc1, 0x80]))
   })
 
   it('should decode a null value', function () {
-    assert.deepStrictEqual(Buffer.from([]), RLP.decode(hexToBytes('80')))
+    assert.deepStrictEqual(Uint8Array.from([]), RLP.decode(hexToBytes('80')))
   })
 })
 
 describe('zero values', function () {
   let encoded
   it('encode a zero', function () {
-    encoded = RLP.encode(Buffer.from([0]))
-    assert.deepStrictEqual(encoded, Buffer.from([0]))
+    encoded = RLP.encode(Uint8Array.from([0]))
+    assert.deepStrictEqual(encoded, Uint8Array.from([0]))
   })
 
   it('decode a zero', function () {
-    const decode = RLP.decode(Buffer.from([0]))
-    assert.deepStrictEqual(decode, Buffer.from([0]))
+    const decode = RLP.decode(Uint8Array.from([0]))
+    assert.deepStrictEqual(decode, Uint8Array.from([0]))
   })
 })
 
 describe('empty values', function () {
   let decoded
   it('decode empty buffer', function () {
-    decoded = RLP.decode(Buffer.from([]))
-    assert.deepStrictEqual(decoded, Buffer.from([]))
+    decoded = RLP.decode(Uint8Array.from([]))
+    assert.deepStrictEqual(decoded, Uint8Array.from([]))
   })
 })
 
@@ -394,6 +394,6 @@ describe('recursive typings', function () {
     }
     // tslint:disable-next-line:no-dead-store
     const a = RLP.encode([[[[[0]]]]])
-    assert.ok(assertType<typeof a, Buffer>(true))
+    assert.ok(assertType<typeof a, Uint8Array>(true))
   })
 })

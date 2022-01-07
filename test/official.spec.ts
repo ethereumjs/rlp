@@ -20,7 +20,7 @@ describe('offical tests', function () {
 
       const encoded = RLP.encode(incoming)
       const out = test.out[0] === '0' && test.out[1] === 'x' ? test.out.slice(2) : test.out
-      assert.ok(encoded.equals(hexToBytes(out)))
+      assert.deepStrictEqual(encoded, (hexToBytes(out)))
       done()
     })
   }
