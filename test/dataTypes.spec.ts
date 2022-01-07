@@ -1,7 +1,7 @@
 import { version } from 'process'
 import assert from 'assert'
 import * as RLP from '../src'
-import { bytesToUtf8 } from './utils';
+import { bytesToUtf8 } from './utils'
 const { bytesToHex, hexToBytes, utf8ToBytes } = RLP.utils
 
 describe('invalid RLPs', function () {
@@ -17,9 +17,7 @@ describe('invalid RLPs', function () {
       msg: 'invalid RLP (safeSlice): end slice of Uint8Array out-of-bounds',
     },
     {
-      input: hexToBytes(
-        'efdebdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      ),
+      input: hexToBytes('efdebdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
       msg: 'invalid RLP (safeSlice): end slice of Uint8Array out-of-bounds',
     },
   ]
@@ -94,7 +92,7 @@ describe('RLP encoding (list):', function () {
     const expectedBuffer = hexToBytes(
       'f85483646f6783676f6483636174b8467a6f6f3235357a6f6f3235357a7a7a7a7a7a7a7a7a7a7a7a73737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373'
     )
-    assert.deepStrictEqual(encodedArrayOfStrings, (expectedBuffer))
+    assert.deepStrictEqual(encodedArrayOfStrings, expectedBuffer)
   })
 })
 
@@ -187,7 +185,7 @@ describe('strings over 55 bytes long', function () {
 
   it('should decode', function () {
     const decoded = RLP.decode(encoded)
-    assert.deepStrictEqual(bytesToUtf8((decoded)), testString)
+    assert.deepStrictEqual(bytesToUtf8(decoded), testString)
   })
 })
 
@@ -202,7 +200,7 @@ describe('list over 55 bytes long', function () {
 
   it('should decode', function () {
     const decodedBuffer = RLP.decode(encoded) as any as Uint8Array[]
-    const decoded: string[] = decodedBuffer.map(b => bytesToUtf8(b))
+    const decoded: string[] = decodedBuffer.map((b) => bytesToUtf8(b))
     assert.deepStrictEqual(decoded, testString)
   })
 })
@@ -232,7 +230,10 @@ describe('nested lists:', function () {
   let encoded: Uint8Array
   it('encode a nested list', function () {
     encoded = RLP.encode(nestedList)
-    assert.deepStrictEqual(encoded, Uint8Array.from([0xc7, 0xc0, 0xc1, 0xc0, 0xc3, 0xc0, 0xc1, 0xc0]))
+    assert.deepStrictEqual(
+      encoded,
+      Uint8Array.from([0xc7, 0xc0, 0xc1, 0xc0, 0xc3, 0xc0, 0xc1, 0xc0])
+    )
   })
 
   it('should decode a nested list', function () {
