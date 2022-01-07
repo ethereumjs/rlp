@@ -25,8 +25,13 @@ export function encode(input: Input): Uint8Array {
   }
 }
 
-// Slices a Uint8Array, throws if the slice goes out-of-bounds of the Uint8Array
-// E.g. safeSlice(RLP.utils.hexToBytes('aa'), 1, 2) will throw.
+/**
+ * Slices a Uint8Array, throws if the slice goes out-of-bounds of the Uint8Array
+ * E.g. safeSlice(RLP.utils.hexToBytes('aa'), 1, 2) will throw.
+ * @param input
+ * @param start
+ * @param end
+ */
 function safeSlice(input: Uint8Array, start: number, end: number) {
   if (end > input.length) {
     throw new Error('invalid RLP (safeSlice): end slice of Uint8Array out-of-bounds')
@@ -34,7 +39,11 @@ function safeSlice(input: Uint8Array, start: number, end: number) {
   return input.slice(start, end)
 }
 
-// Parse integers. Check if there are no leading zeros
+/**
+ * Parse integers. Check if there is no leading zeros
+ * @param v The value to parse
+ * @param base The base to parse the integer into
+ */
 function decodeLength(v: Uint8Array): number {
   if (v[0] === 0 && v[1] === 0) {
     throw new Error('invalid RLP: extra zeros')
@@ -58,7 +67,7 @@ function encodeLength(len: number, offset: number): Uint8Array {
  * RLP Decoding based on https://eth.wiki/en/fundamentals/rlp
  * @param input - will be converted to Uint8Array
  * @param stream - Is the input a stream (false by default)
- * @returns - returns decoded Array of Uint8Arrays containing the original message
+ * @returns - returns decode Array of Uint8Arrays containing the original message
  **/
 export function decode(input: Uint8Array, stream?: boolean): Uint8Array
 export function decode(input: Uint8Array[], stream?: boolean): Uint8Array[]
@@ -81,7 +90,7 @@ export function decode(input: Input, stream: boolean = false): Uint8Array[] | Ui
   return decoded.data
 }
 
-// Decode an input with RLP
+/** Decode an input with RLP */
 function _decode(input: Uint8Array): Decoded {
   let length: number, llength: number, data: Uint8Array, innerRemainder: Uint8Array, d: Decoded
   const decoded = []
@@ -238,7 +247,7 @@ function utf8ToBytes(utf: string): Uint8Array {
   return new TextEncoder().encode(utf)
 }
 
-// Transform an integer into its hexadecimal value
+/** Transform an integer into its hexadecimal value */
 function numberToHex(integer: number | bigint): string {
   if (integer < 0) {
     throw new Error('Invalid integer as argument, must be unsigned!')
@@ -247,7 +256,7 @@ function numberToHex(integer: number | bigint): string {
   return hex.length % 2 ? `0${hex}` : hex
 }
 
-// Pad a string to be even
+/** Pad a string to be even */
 function padToEven(a: string): string {
   return a.length % 2 ? `0${a}` : a
 }
@@ -258,7 +267,7 @@ export const utils = {
   utf8ToBytes,
 }
 
-// Transform anything into a Uint8Array
+/** Transform anything into a Uint8Array */
 function toBytes(v: Input): Uint8Array {
   if (!(v instanceof Uint8Array)) {
     if (typeof v === 'string') {
@@ -275,6 +284,8 @@ function toBytes(v: Input): Uint8Array {
       }
     } else if (v === null || v === undefined) {
       return Uint8Array.from([])
+    } else if (v instanceof Uint8Array) {
+      return v
     } else {
       throw new Error('invalid type')
     }
