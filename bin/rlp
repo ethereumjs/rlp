@@ -41,7 +41,7 @@ if (method === 'encode') {
  * Buffer or Buffer Array to JSON
  */
 function baToJSON(ba) {
-  if (Buffer.isBuffer(ba)) {
+  if ((ba instanceof Uint8Array)) {
     return rlp.utils.bytesToHex(ba)
   } else if (ba instanceof Array) {
     const arr = []

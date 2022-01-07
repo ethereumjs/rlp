@@ -2,8 +2,7 @@ import { version } from 'process'
 import assert from 'assert'
 import * as RLP from '../src'
 import { bytesToUtf8 } from './utils';
-const Buffer = require('buffer').Buffer // needed for karma
-const { bytesToHex, hexToBytes } = RLP.utils
+const { bytesToHex, hexToBytes, utf8ToBytes } = RLP.utils
 
 describe('invalid RLPs', function () {
   const errCases = [
@@ -138,37 +137,37 @@ describe('RLP encoding (integer):', function () {
 
 describe('RLP decoding (string):', function () {
   it('first byte < 0x7f, return byte itself', function () {
-    const decodedStr = RLP.decode(Buffer.from([97]))
+    const decodedStr = RLP.decode(Uint8Array.from([97]))
     assert.strictEqual(1, decodedStr.length)
     assert.strictEqual(bytesToUtf8(decodedStr), 'a')
   })
 
   it('first byte < 0xb7, data is everything except first byte', function () {
-    const decodedStr = RLP.decode(Buffer.from([131, 100, 111, 103]))
+    const decodedStr = RLP.decode(Uint8Array.from([131, 100, 111, 103]))
     assert.strictEqual(3, decodedStr.length)
     assert.strictEqual(bytesToUtf8(decodedStr), 'dog')
   })
 
   it('array', function () {
     // prettier-ignore
-    const decodedBufferArray = RLP.decode(Buffer.from([204, 131, 100, 111, 103, 131, 103, 111, 100, 131, 99, 97, 116]))
+    const decodedBufferArray = RLP.decode(Uint8Array.from([204, 131, 100, 111, 103, 131, 103, 111, 100, 131, 99, 97, 116]))
     assert.deepStrictEqual(decodedBufferArray, [
-      Buffer.from('dog'),
-      Buffer.from('god'),
-      Buffer.from('cat'),
+      utf8ToBytes('dog'),
+      utf8ToBytes('god'),
+      utf8ToBytes('cat'),
     ])
   })
 })
 
 describe('RLP decoding (int):', function () {
   it('first byte < 0x7f, return itself', function () {
-    const decodedSmallNum = RLP.decode(Buffer.from([15]))
+    const decodedSmallNum = RLP.decode(Uint8Array.from([15]))
     assert.strictEqual(1, decodedSmallNum.length)
     assert.strictEqual(decodedSmallNum[0], 15)
   })
 
   it('first byte < 0xb7, data is everything except first byte', function () {
-    const decodedNum = RLP.decode(Buffer.from([130, 4, 0]))
+    const decodedNum = RLP.decode(Uint8Array.from([130, 4, 0]))
     assert.strictEqual(2, decodedNum.length)
     assert.strictEqual(bytesToHex(decodedNum), '0400')
   })
@@ -177,7 +176,7 @@ describe('RLP decoding (int):', function () {
 describe('strings over 55 bytes long', function () {
   const testString =
     'This function takes in a data, convert it to buffer if not, and a length for recursion'
-  const testBuffer = Buffer.from(testString)
+  const testBuffer = RLP.utils.utf8ToBytes(testString)
   let encoded: Uint8Array
 
   it('should encode it', function () {
@@ -188,7 +187,7 @@ describe('strings over 55 bytes long', function () {
 
   it('should decode', function () {
     const decoded = RLP.decode(encoded)
-    assert.deepStrictEqual(bytesToUtf8(Buffer.from(decoded)), testString)
+    assert.deepStrictEqual(bytesToUtf8((decoded)), testString)
   })
 })
 
@@ -202,7 +201,7 @@ describe('list over 55 bytes long', function () {
   })
 
   it('should decode', function () {
-    const decodedBuffer = RLP.decode(encoded) as any as Buffer[]
+    const decodedBuffer = RLP.decode(encoded) as any as Uint8Array[]
     const decoded: string[] = decodedBuffer.map(b => bytesToUtf8(b))
     assert.deepStrictEqual(decoded, testString)
   })

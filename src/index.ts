@@ -27,7 +27,7 @@ export function encode(input: Input): Uint8Array {
 
 /**
  * Slices a Uint8Array, throws if the slice goes out-of-bounds of the Uint8Array
- * E.g. safeSlice(Uint8Array.from('aa', 'hex'), 1, 2) will throw.
+ * E.g. safeSlice(RLP.utils.hexToBytes('aa'), 1, 2) will throw.
  * @param input
  * @param start
  * @param end
