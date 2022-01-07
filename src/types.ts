@@ -1,6 +1,4 @@
-import BN from 'bn.js'
-
-export type Input = Buffer | string | number | bigint | Uint8Array | BN | List | null
+export type Input = Buffer | string | number | bigint | Uint8Array | List | null
 
 // Use interface extension instead of type alias to
 // make circular declaration possible.

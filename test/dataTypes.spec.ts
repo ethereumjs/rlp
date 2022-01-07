@@ -1,7 +1,6 @@
 import { version } from 'process'
 import assert from 'assert'
 import * as RLP from '../src'
-import BN from 'bn.js'
 const Buffer = require('buffer').Buffer // needed for karma
 
 describe('invalid RLPs', function () {
@@ -118,13 +117,6 @@ describe('RLP encoding (BigInt):', function () {
   it('should encode a BigInt value', function () {
     // eslint-disable-next-line no-undef
     const encodedBN = RLP.encode(BigInt(3))
-    assert.strictEqual(encodedBN[0], 3)
-  })
-})
-
-describe('RLP encoding (BN):', function () {
-  it('should encode a BN value', function () {
-    const encodedBN = RLP.encode(new BN(3))
     assert.strictEqual(encodedBN[0], 3)
   })
 })

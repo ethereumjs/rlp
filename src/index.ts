@@ -1,5 +1,3 @@
-import BN from 'bn.js'
-
 import { Decoded, Input, List } from './types'
 
 // Types exported outside of this package
@@ -212,12 +210,12 @@ function _decode(input: Buffer): Decoded {
   }
 }
 
-/** Check if a string is prefixed by 0x */
+// Check if a string is prefixed by 0x
 function isHexPrefixed(str: string): boolean {
-  return str.slice(0, 2) === '0x'
+  return str.length > 2 && str[0] === '0' && str[1] === 'x'
 }
 
-/** Removes 0x from a given String */
+// Removes 0x from a given String
 function stripHexPrefix(str: string): string {
   if (typeof str !== 'string') {
     return str
@@ -225,8 +223,62 @@ function stripHexPrefix(str: string): string {
   return isHexPrefixed(str) ? str.slice(2) : str
 }
 
+const hexes = Array.from({ length: 256 }, (v, i) => i.toString(16).padStart(2, '0'))
+function bytesToHex(uint8a: Uint8Array): string {
+  // pre-caching chars could speed this up 6x.
+  let hex = ''
+  for (let i = 0; i < uint8a.length; i++) {
+    hex += hexes[uint8a[i]]
+  }
+  return hex
+}
+
+function hexToBytes(hex: string): Uint8Array {
+  if (typeof hex !== 'string') {
+    throw new TypeError('hexToBytes: expected string, got ' + typeof hex)
+  }
+  hex = stripHexPrefix(hex)
+  if (hex.length % 2) throw new Error('hexToBytes: received invalid unpadded hex')
+  const array = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < array.length; i++) {
+    const j = i * 2
+    array[i] = Number.parseInt(hex[j] + hex[j + 1])
+  }
+  return array
+}
+
+// Concatenates two Uint8Arrays into one.
+// TODO: check if we're copying data instead of moving it and if that's ok
+function concatBytes(...arrays: Uint8Array[]): Uint8Array {
+  if (arrays.length === 1) return arrays[0]
+  const length = arrays.reduce((a, arr) => a + arr.length, 0)
+  const result = new Uint8Array(length)
+  for (let i = 0, pad = 0; i < arrays.length; i++) {
+    const arr = arrays[i]
+    result.set(arr, pad)
+    pad += arr.length
+  }
+  return result
+}
+
+function numberToBytes(num: number | bigint) {
+  let hex = num.toString(16)
+  hex = hex.length & 1 ? `0${hex}` : hex
+  return hexToBytes(hex)
+}
+
+// Global symbols in both browsers and Node.js since v11
+// See https://github.com/microsoft/TypeScript/issues/31535
+declare const TextEncoder: any
+declare const TextDecoder: any
+
+function utf8ToBytes(utf: string): Uint8Array {
+  // @ts-ignore
+  return new TextEncoder().encode(utf)
+}
+
 /** Transform an integer into its hexadecimal value */
-function intToHex(integer: number | bigint): string {
+function numberToHexSigned(integer: number): string {
   if (integer < 0) {
     throw new Error('Invalid integer as argument, must be unsigned!')
   }
@@ -234,9 +286,22 @@ function intToHex(integer: number | bigint): string {
   return hex.length % 2 ? `0${hex}` : hex
 }
 
+/** Transform an integer into a Uint8Array */
+function numberToBytesSigned(integer: number): Uint8Array {
+  return hexToBytes(numberToHexSigned(integer))
+}
+
 /** Pad a string to be even */
 function padToEven(a: string): string {
   return a.length % 2 ? `0${a}` : a
+}
+
+function intToHex(integer: number | bigint): string {
+  if (integer < 0) {
+    throw new Error('Invalid integer as argument, must be unsigned!')
+  }
+  const hex = integer.toString(16)
+  return hex.length % 2 ? `0${hex}` : hex
 }
 
 /** Transform an integer into a Buffer */
@@ -264,9 +329,6 @@ function toBuffer(v: Input): Buffer {
       return Buffer.from([])
     } else if (v instanceof Uint8Array) {
       return Buffer.from(v as any)
-    } else if (BN.isBN(v)) {
-      // converts a BN to a Buffer
-      return Buffer.from(v.toArray())
     } else {
       throw new Error('invalid type')
     }
