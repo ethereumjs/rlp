@@ -1,5 +1,5 @@
 import assert from 'assert'
-import * as RLP from '../src'
+import RLP, { utils } from '../src'
 import invalid from './fixture/invalid.json'
 
 describe('invalid tests', function () {
@@ -10,7 +10,7 @@ describe('invalid tests', function () {
         out = out.slice(2)
       }
       try {
-        RLP.decode(RLP.utils.hexToBytes(out))
+        RLP.decode(utils.hexToBytes(out))
         assert.fail(`should not decode invalid RLPs, input: ${out}`)
       } finally {
         done()

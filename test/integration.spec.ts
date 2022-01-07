@@ -2,7 +2,7 @@ import assert from 'assert'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import vm from 'vm'
-import * as RLP from '../dist'
+import RLP from '../dist'
 import { bytesToUtf8 } from './utils'
 
 describe('Distribution:', function () {

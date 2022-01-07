@@ -1,7 +1,7 @@
 import assert from 'assert'
-import * as RLP from '../src'
+import RLP, { utils } from '../src'
 import official from './fixture/rlptest.json'
-const { bytesToHex, hexToBytes } = RLP.utils
+const { bytesToHex, hexToBytes } = utils
 
 function numberToBytes(a: bigint): Uint8Array {
   const hex = a.toString(16)

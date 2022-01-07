@@ -292,3 +292,6 @@ function toBytes(v: Input): Uint8Array {
   }
   return v
 }
+
+const RLP = { encode, decode }
+export default RLP
