@@ -18,7 +18,7 @@ export function encode(input: Input): Buffer {
     const buf = Buffer.concat(output)
     return Buffer.concat([encodeLength(buf.length, 192), buf])
   } else {
-    const inputBuf = toBuffer(input)
+    const inputBuf = Buffer.from(toBytes(input))
     return inputBuf.length === 1 && inputBuf[0] < 128
       ? inputBuf
       : Buffer.concat([encodeLength(inputBuf.length, 128), inputBuf])
@@ -77,7 +77,7 @@ export function decode(input: Input, stream: boolean = false): Buffer[] | Buffer
     return Buffer.from([])
   }
 
-  const inputBuffer = toBuffer(input)
+  const inputBuffer = Buffer.from(toBytes(input))
   const decoded = _decode(inputBuffer)
 
   if (stream) {
@@ -129,7 +129,7 @@ function _decode(input: Buffer): Decoded {
     if (input.length - 1 < llength) {
       throw new Error('invalid RLP: not enough bytes for string length')
     }
-    length = safeParseInt16(safeSlice(input, 1, llength).toString('hex'))
+    length = safeParseInt16(bytesToHex(safeSlice(input, 1, llength)))
     if (length <= 55) {
       throw new Error('invalid RLP: expected string length to be greater than 55')
     }
@@ -156,7 +156,7 @@ function _decode(input: Buffer): Decoded {
   } else {
     // a list  over 55 bytes long
     llength = firstByte - 0xf6
-    length = safeParseInt16(safeSlice(input, 1, llength).toString('hex'))
+    length = safeParseInt16(bytesToHex(safeSlice(input, 1, llength)))
     if (length < 56) {
       throw new Error('invalid RLP: encoded list too short')
     }
@@ -203,6 +203,27 @@ function bytesToHex(uint8a: Uint8Array): string {
   return hex
 }
 
+function parseHexByte(hexByte: string): number {
+  if (hexByte.length !== 2) throw new Error('Invalid byte sequence');
+  const byte = Number.parseInt(hexByte, 16);
+  if (Number.isNaN(byte)) throw new Error('Invalid byte sequence');
+  return byte;
+}
+
+// Caching slows it down 2-3x
+function hexToBytes(hex: string): Uint8Array {
+  if (typeof hex !== 'string') {
+    throw new TypeError('hexToBytes: expected string, got ' + typeof hex);
+  }
+  if (hex.length % 2) throw new Error('hexToBytes: received invalid unpadded hex');
+  const array = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < array.length; i++) {
+    const j = i * 2;
+    array[i] = parseHexByte(hex.slice(j, j + 2));
+  }
+  return array;
+}
+
 // Concatenates two Uint8Arrays into one.
 function concatBytes(...arrays: Uint8Array[]): Uint8Array {
   if (arrays.length === 1) return arrays[0]
@@ -214,12 +235,6 @@ function concatBytes(...arrays: Uint8Array[]): Uint8Array {
     pad += arr.length
   }
   return result
-}
-
-function numberToBytes(num: number | bigint) {
-  let hex = num.toString(16)
-  hex = hex.length & 1 ? `0${hex}` : hex
-  return hexToBytes(hex)
 }
 
 // Global symbols in both browsers and Node.js since v11
@@ -258,46 +273,31 @@ function bytesToNumber(bytes: Uint8Array): bigint {
   return hexToNumber(bytesToHex(bytes));
 }
 
-function parseHexByte(hexByte: string): number {
-  if (hexByte.length !== 2) throw new Error('Invalid byte sequence');
-  const byte = Number.parseInt(hexByte, 16);
-  if (Number.isNaN(byte)) throw new Error('Invalid byte sequence');
-  return byte;
-}
-
-// Caching slows it down 2-3x
-function hexToBytes(hex: string): Uint8Array {
-  if (typeof hex !== 'string') {
-    throw new TypeError('hexToBytes: expected string, got ' + typeof hex);
-  }
-  if (hex.length % 2) throw new Error('hexToBytes: received invalid unpadded hex');
-  const array = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < array.length; i++) {
-    const j = i * 2;
-    array[i] = parseHexByte(hex.slice(j, j + 2));
-  }
-  return array;
+export const utils = {
+  bytesToHex,
+  hexToBytes,
+  utf8ToBytes
 }
 
 /** Transform anything into a Buffer */
-function toBuffer(v: Input): Buffer {
-  if (!Buffer.isBuffer(v)) {
+function toBytes(v: Input): Uint8Array {
+  if (!(v instanceof Uint8Array)) {
     if (typeof v === 'string') {
       if (isHexPrefixed(v)) {
-        return Buffer.from(padToEven(stripHexPrefix(v)), 'hex')
+        return hexToBytes(padToEven(stripHexPrefix(v)))
       } else {
-        return Buffer.from(v)
+        return utf8ToBytes(v)
       }
     } else if (typeof v === 'number' || typeof v === 'bigint') {
       if (!v) {
-        return Buffer.from([])
+        return Uint8Array.from([])
       } else {
-        return Buffer.from(numberToBytes(v))
+        return hexToBytes(numberToHex(v))
       }
     } else if (v === null || v === undefined) {
-      return Buffer.from([])
+      return Uint8Array.from([])
     } else if (v instanceof Uint8Array) {
-      return Buffer.from(v as any)
+      return v
     } else {
       throw new Error('invalid type')
     }
