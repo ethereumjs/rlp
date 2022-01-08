@@ -284,8 +284,6 @@ function toBytes(v: Input): Uint8Array {
       }
     } else if (v === null || v === undefined) {
       return Uint8Array.from([])
-    } else if (v instanceof Uint8Array) {
-      return v
     } else {
       throw new Error('invalid type')
     }
