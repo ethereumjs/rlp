@@ -182,7 +182,7 @@ function _decode(input: Uint8Array): Decoded {
 
 // Check if a string is prefixed by 0x
 function isHexPrefixed(str: string): boolean {
-  return str.length > 2 && str[0] === '0' && str[1] === 'x'
+  return str.length >= 2 && str[0] === '0' && str[1] === 'x'
 }
 
 // Removes 0x from a given String
@@ -269,26 +269,24 @@ export const utils = {
 
 /** Transform anything into a Uint8Array */
 function toBytes(v: Input): Uint8Array {
-  if (!(v instanceof Uint8Array)) {
-    if (typeof v === 'string') {
-      if (isHexPrefixed(v)) {
-        return hexToBytes(padToEven(stripHexPrefix(v)))
-      } else {
-        return utf8ToBytes(v)
-      }
-    } else if (typeof v === 'number' || typeof v === 'bigint') {
-      if (!v) {
-        return Uint8Array.from([])
-      } else {
-        return hexToBytes(numberToHex(v))
-      }
-    } else if (v === null || v === undefined) {
+  if (v instanceof Uint8Array) return v
+  if (typeof v === 'string') {
+    if (isHexPrefixed(v)) {
+      return hexToBytes(padToEven(stripHexPrefix(v)))
+    } else {
+      return utf8ToBytes(v)
+    }
+  } else if (typeof v === 'number' || typeof v === 'bigint') {
+    if (!v) {
       return Uint8Array.from([])
     } else {
-      throw new Error('invalid type')
+      return hexToBytes(numberToHex(v))
     }
+  } else if (v === null || v === undefined) {
+    return Uint8Array.from([])
+  } else {
+    throw new Error('invalid type')
   }
-  return v
 }
 
 const RLP = { encode, decode }
