@@ -153,23 +153,23 @@ const gethCases = [
   },
 ]
 
-function bufferArrayToStringArray(buffer: any): any {
-  return buffer.map((buf: any) => {
-    if (Array.isArray(buf)) {
-      return bufferArrayToStringArray(buf)
+function arrToStringArr(arr: any): any {
+  return arr.map((a: any) => {
+    if (Array.isArray(a)) {
+      return arrToStringArr(a)
     }
-    return bytesToHex(buf)
+    return bytesToHex(a)
   })
 }
 
 describe('geth tests', function () {
   for (const gethCase of gethCases) {
-    const buffer = hexToBytes(gethCase.input)
+    const input = hexToBytes(gethCase.input)
     it('should pass Geth test', function (done) {
       try {
-        const output = RLP.decode(buffer)
+        const output = RLP.decode(input)
         if (Array.isArray(output)) {
-          const arrayOutput = bufferArrayToStringArray(output)
+          const arrayOutput = arrToStringArr(output)
           assert.strictEqual(
             JSON.stringify(arrayOutput),
             JSON.stringify(gethCase.value!),

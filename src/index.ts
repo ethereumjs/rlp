@@ -80,7 +80,8 @@ function encodeLength(len: number, offset: number): Uint8Array {
 export function decode(input: Uint8Array, stream?: boolean): Uint8Array
 export function decode(input: Uint8Array[], stream?: boolean): Uint8Array[]
 export function decode(input: Input, stream?: boolean): Uint8Array[] | Uint8Array | Decoded
-export function decode(input: Input, stream: boolean = false): Uint8Array[] | Uint8Array | Decoded {
+export function decode(input: Input, stream: true): Decoded
+export function decode(input: Input, stream = false): Uint8Array[] | Uint8Array | Decoded {
   if (!input || (input as any).length === 0) {
     return Uint8Array.from([])
   }
