@@ -25,16 +25,16 @@ import RLP from 'rlp'
 RLP.encode(1)
 ```
 
-### Buffers
+### Uint8Arrays
 
-Buffers were removed in favor of using Uin8Arrays for greater compatibility with browsers.
+Buffers were replaced in favor of using Uint8Arrays for greater compatibility with browsers.
 
 ### Invalid RLPs
 
 Increased strictness has been added to ensure invalid RLPs are not decoded, see PR [#101](https://github.com/ethereumjs/rlp/pull/101).
 
+- Fix karma, readme updates, combine source to one file, PR [#109](https://github.com/ethereumjs/rlp/pull/109)
 - Add browser support, remove dependencies, PR [#90](https://github.com/ethereumjs/rlp/pull/90)
-- Fix karma, readme updates, move utils to own file. PR [#109](https://github.com/ethereumjs/rlp/pull/109)
 - Readme and typedoc updates, normalize source error messages to capital RLP, PR [#108](https://github.com/ethereumjs/rlp/pull/108)
 - Ensure we do not decode invalid RLPs, PR [#101](https://github.com/ethereumjs/rlp/pull/101)
 
