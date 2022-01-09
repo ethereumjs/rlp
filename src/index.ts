@@ -17,12 +17,12 @@ export function encode(input: Input): Uint8Array {
     }
     const buf = concatBytes(...output)
     return concatBytes(encodeLength(buf.length, 192), buf)
-  } else {
-    const inputBuf = toBytes(input)
-    return inputBuf.length === 1 && inputBuf[0] < 128
-      ? inputBuf
-      : concatBytes(encodeLength(inputBuf.length, 128), inputBuf)
   }
+  const inputBuf = toBytes(input)
+  if (inputBuf.length === 1 && inputBuf[0] < 128) {
+    return inputBuf
+  }
+  return concatBytes(encodeLength(inputBuf.length, 128), inputBuf)
 }
 
 /**
