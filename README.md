@@ -12,7 +12,7 @@
 
 `npm install rlp`
 
-install with `-g` if you want to use the cli.
+install with `-g` if you want to use the CLI.
 
 ## USAGE
 
@@ -50,18 +50,15 @@ Tests use mocha.
 
 To run tests and linting: `npm test`
 
-To auto fix linting problems use: `npm run lint:fix`
+To auto-fix linting problems run: `npm run lint:fix`
 
 ## CODE COVERAGE
 
-Install dev dependencies
-`npm install`
+Install dev dependencies: `npm install`
 
-Run
-`npm run coverage`
+Run coverage: `npm run coverage`
 
-The results are at
-`coverage/lcov-report/index.html`
+The results will be at: `coverage/lcov-report/index.html`
 
 # EthereumJS
 
