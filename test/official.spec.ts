@@ -1,13 +1,9 @@
 import assert from 'assert'
 import RLP, { utils } from '../src'
+import { numberToBytes } from './utils'
 import official from './fixture/rlptest.json'
-const { bytesToHex, hexToBytes } = utils
 
-function numberToBytes(a: bigint): Uint8Array {
-  const hex = a.toString(16)
-  const pad = hex.length % 2 ? `0${hex}` : hex
-  return hexToBytes(pad)
-}
+const { bytesToHex, hexToBytes } = utils
 
 describe('offical tests', function () {
   for (const [testName, test] of Object.entries(official.tests)) {
