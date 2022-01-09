@@ -143,13 +143,13 @@ describe('RLP encoding (integer):', function () {
 
 describe('RLP decoding (string):', function () {
   it('first byte < 0x7f, return byte itself', function () {
-    const decodedStr = RLP.decode(Uint8Array.from([97]))
+    const decodedStr = RLP.decode(Uint8Array.from([97])) as Uint8Array
     assert.strictEqual(1, decodedStr.length)
     assert.strictEqual(bytesToUtf8(decodedStr), 'a')
   })
 
   it('first byte < 0xb7, data is everything except first byte', function () {
-    const decodedStr = RLP.decode(Uint8Array.from([131, 100, 111, 103]))
+    const decodedStr = RLP.decode(Uint8Array.from([131, 100, 111, 103])) as Uint8Array
     assert.strictEqual(3, decodedStr.length)
     assert.strictEqual(bytesToUtf8(decodedStr), 'dog')
   })
@@ -173,7 +173,7 @@ describe('RLP decoding (int):', function () {
   })
 
   it('first byte < 0xb7, data is everything except first byte', function () {
-    const decodedNum = RLP.decode(Uint8Array.from([130, 4, 0]))
+    const decodedNum = RLP.decode(Uint8Array.from([130, 4, 0])) as Uint8Array
     assert.strictEqual(2, decodedNum.length)
     assert.strictEqual(bytesToHex(decodedNum), '0400')
   })
@@ -206,7 +206,7 @@ describe('strings over 55 bytes long', function () {
   })
 
   it('should decode', function () {
-    const decoded = RLP.decode(encoded)
+    const decoded = RLP.decode(encoded) as Uint8Array
     assert.deepStrictEqual(bytesToUtf8(decoded), testString)
   })
 })
@@ -221,7 +221,7 @@ describe('list over 55 bytes long', function () {
   })
 
   it('should decode', function () {
-    const decodedArr = RLP.decode(encoded) as any as Uint8Array[]
+    const decodedArr = RLP.decode(encoded) as Uint8Array[]
     const decoded: string[] = decodedArr.map((a) => bytesToUtf8(a))
     assert.deepStrictEqual(decoded, testString)
   })

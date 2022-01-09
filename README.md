@@ -30,7 +30,7 @@ assert.deepEqual(nestedList, decoded)
 
 `RLP.encode(plain)` - RLP encodes an `Array`, `Uint8Array` or `String` and returns a `Uint8Array`.
 
-`RLP.decode(encoded, [skipRemainderCheck=false])` - Decodes an RLP encoded `Uint8Array`, `Array` or `String` and returns a `Uint8Array` or an `Array` of `Uint8Arrays`. If `skipRemainderCheck` is enabled, `rlp` will just decode the first rlp sequence in the Uint8Array. By default, it would throw an error if there are more bytes in Uint8Array than used by rlp sequence.
+`RLP.decode(encoded, [stream=false])` - Decodes an RLP encoded `Uint8Array`, `Array` or `String` and returns a `Uint8Array` or `NestedUint8Array`. If `stream` is enabled, it will just decode the first rlp sequence in the Uint8Array. By default, it would throw an error if there are more bytes in Uint8Array than used by the rlp sequence.
 
 ## CLI
 

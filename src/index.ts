@@ -1,13 +1,15 @@
-export type Input = string | number | bigint | Uint8Array | List | null
+export type Input = string | number | bigint | Uint8Array | List | null | undefined
 
 // Use interface extension instead of type alias to
 // make circular declaration possible.
 export interface List extends Array<Input> {}
 
 export interface Decoded {
-  data: Uint8Array | Uint8Array[]
+  data: Uint8Array | NestedUint8Array
   remainder: Uint8Array
 }
+
+export interface NestedUint8Array extends Array<Uint8Array | NestedUint8Array> {}
 
 /**
  * RLP Encoding based on https://eth.wiki/en/fundamentals/rlp
@@ -75,11 +77,9 @@ function encodeLength(len: number, offset: number): Uint8Array {
  * @param stream Is the input a stream (false by default)
  * @returns decoded Array of Uint8Arrays containing the original message
  **/
-export function decode(input: Uint8Array, stream?: boolean): Uint8Array
-export function decode(input: Uint8Array[], stream?: boolean): Uint8Array[]
-export function decode(input: Input, stream?: boolean): Uint8Array[] | Uint8Array | Decoded
-export function decode(input: Input, stream: true): Decoded
-export function decode(input: Input, stream = false): Uint8Array[] | Uint8Array | Decoded {
+export function decode(input: Input, stream?: false): Uint8Array | NestedUint8Array
+export function decode(input: Input, stream?: true): Decoded
+export function decode(input: Input, stream = false): Uint8Array | NestedUint8Array | Decoded {
   if (!input || (input as any).length === 0) {
     return Uint8Array.from([])
   }
@@ -287,7 +287,7 @@ function toBytes(v: Input): Uint8Array {
   if (v === null || v === undefined) {
     return Uint8Array.from([])
   }
-  throw new Error('toBytes: received unsupported type')
+  throw new Error('toBytes: received unsupported type ' + typeof v)
 }
 
 export const utils = {
