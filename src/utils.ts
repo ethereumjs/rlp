@@ -47,7 +47,7 @@ export function concatBytes(...arrays: Uint8Array[]): Uint8Array {
 // Global symbols in both browsers and Node.js since v11
 // See https://github.com/microsoft/TypeScript/issues/31535
 declare const TextEncoder: any
-declare const TextDecoder: any // eslint-disable-line
+declare const TextDecoder: any
 
 export function utf8ToBytes(utf: string): Uint8Array {
   return new TextEncoder().encode(utf)
