@@ -4,8 +4,8 @@ module.exports = {
     project: ['./tsconfig.json'],
   },
   env: {
-    mocha: true,
     es2020: true,
+    mocha: true,
   },
   rules: {
     '@typescript-eslint/no-use-before-define': 'off',
