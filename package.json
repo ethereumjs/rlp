@@ -4,18 +4,16 @@
   "description": "Recursive Length Prefix Encoding Module",
   "files": [
     "dist",
-    "dist.browser",
     "bin",
     "src"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "browser": "dist.browser/index.js",
   "bin": {
     "rlp": "bin/rlp"
   },
   "scripts": {
-    "build": "tsc -p ./tsconfig.prod.json && tsc -p tsconfig.browser.json",
+    "build": "tsc -p ./tsconfig.prod.json",
     "prepublishOnly": "npm run test && npm run build",
     "coverage": "npm run build && nyc --reporter=lcov npm run test:unit",
     "tsc": "tsc -p ./tsconfig.prod.json --noEmit",
