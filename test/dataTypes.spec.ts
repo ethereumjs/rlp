@@ -1,9 +1,8 @@
 import assert from 'assert'
 import RLP, { utils } from '../src'
-import { concatBytes } from '../src/utils'
 import { bytesToUtf8 } from './utils'
 
-const { bytesToHex, hexToBytes, utf8ToBytes } = utils
+const { bytesToHex, concatBytes, hexToBytes, utf8ToBytes } = utils
 
 describe('invalid RLPs', function () {
   const errCases = [
