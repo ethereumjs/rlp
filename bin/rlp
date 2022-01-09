@@ -30,7 +30,7 @@ if (method === 'encode') {
   // Decode
   try {
     const decoded = RLP.decode(strInput)
-    const json = JSON.stringify(baToJSON(decoded))
+    const json = JSON.stringify(arrToJSON(decoded))
     console.log(json)
   } catch (error) {
     console.error(`Error decoding RLP: ${JSON.stringify(error)}`)
@@ -40,15 +40,15 @@ if (method === 'encode') {
 }
 
 /**
- * Buffer or Buffer Array to JSON
+ * Uint8Array or Array<Uint8Array> to JSON
  */
-function baToJSON(ba) {
+function arrToJSON(ba) {
   if (ba instanceof Uint8Array) {
     return bytesToHex(ba)
   } else if (ba instanceof Array) {
     const arr = []
     for (let i = 0; i < ba.length; i++) {
-      arr.push(baToJSON(ba[i]))
+      arr.push(arrToJSON(ba[i]))
     }
     return arr
   }
